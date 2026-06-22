@@ -2,14 +2,11 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const cors = require('cors');
 
 const app = express();
-app.use(cors()); // क्रॉस-ओरिजिन कनेक्शन को अलाउ करने के लिए
-
 const server = http.createServer(app);
 
-// रेंडर लाइव सर्वर के लिए CORS सेटिंग्स को फिक्स करना
+// बिना किसी बाहरी लाइब्रेरी के सीधा सॉकेट.इओ में ही क्रॉस-ओरिजिन अलाउ करना
 const io = new Server(server, {
     cors: {
         origin: "*",
@@ -24,10 +21,9 @@ app.get('/', (req, res) => {
 let waitingUsers = [];
 
 io.on('connection', (socket) => {
-    console.log('User joined server:', socket.id);
+    console.log('Node active:', socket.id);
 
     socket.on('join-matching', (preferences) => {
-        // पुराना यूजर अगर पहले से लिस्ट में है तो हटाएं
         waitingUsers = waitingUsers.filter(user => user.id !== socket.id);
 
         const userProfile = {
@@ -40,13 +36,11 @@ io.on('connection', (socket) => {
         };
 
         let matchIndex = waitingUsers.findIndex(peer => {
-            const modeMatch = userProfile.mode === peer.mode;
-            const genderMatch = (userProfile.lookFor === 'anyone' || userProfile.lookFor === peer.myGender) &&
-                                (peer.lookFor === 'anyone' || peer.lookFor === userProfile.myGender);
-            const countryMatch = (userProfile.country === 'any' || peer.country === 'any' || userProfile.country === peer.country);
-            const langMatch = (userProfile.language === 'any' || peer.language === 'any' || userProfile.language === peer.language);
-
-            return modeMatch && genderMatch && countryMatch && langMatch;
+            return userProfile.mode === peer.mode &&
+                   (userProfile.lookFor === 'anyone' || userProfile.lookFor === peer.myGender) &&
+                   (peer.lookFor === 'anyone' || peer.lookFor === userProfile.myGender) &&
+                   (userProfile.country === 'any' || peer.country === 'any' || userProfile.country === peer.country) &&
+                   (userProfile.language === 'any' || peer.language === 'any' || userProfile.language === peer.language);
         });
 
         if (matchIndex !== -1) {
@@ -86,5 +80,5 @@ function handleDisconnect(socket) {
     }
 }
 
-const PORT = process.env.PORT || 10000; // रेंडर के डिफ़ॉल्ट पोर्ट को सपोर्ट करना
-server.listen(PORT, '0.0.0.0', () => console.log(`Server Running...`));
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, '0.0.0.0', () => console.log(`Gateway active on port ${PORT}`));

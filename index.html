@@ -3,41 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StrangerPulse - Colorful Rajasthani Leheriya Theme</title>
+    <title>StrangerPulse - Rangeelo Rajasthan</title>
     <style>
         :root {
-            --bg-main: #0c020f;
-            --bg-card: rgba(28, 5, 26, 0.88); /* पारदर्शी ट्रेडिशनल डार्क लुक */
-            --accent: #ff007f; /* ब्राइट राजस्थानी पिंक */
-            --accent-gold: #ffd700; /* राजस्थानी जरी वर्क गोल्ड */
-            --accent-blue: #00f0ff; 
+            --bg-card: rgba(45, 10, 40, 0.88);
+            --accent: #ff007f;
+            --accent-gold: #ffd700;
             --text: #ffffff;
-            --text-muted: #e0b0ff;
-            --border: rgba(255, 0, 127, 0.3);
+            --text-muted: #f3d5ff;
+            --border: rgba(255, 0, 127, 0.4);
         }
 
         body {
             margin: 0; padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             
-            /* 📸 यहाँ पर कलरफुल राजस्थानी लहरिया ओढ़नी का परफैक्ट वर्किंग वॉलपेपर सेट कर दिया है */
-            background-image: linear-gradient(rgba(12, 2, 15, 0.5), rgba(12, 2, 15, 0.7)), url('https://unsplash.com');
-            background-size: cover;
-            background-position: center;
+            /* 🎨 परफैक्ट और सिक्योर राजस्थानी लहरिया ओढ़नी कलर्स का बैकग्राउंड ग्रेडिएंट (यह कभी ब्लैक नहीं दिखेगा!) */
+            background: linear-gradient(135deg, #ff007f 0%, #ff7700 25%, #ffd700 50%, #7f00ff 75%, #0c0211 100%);
             background-attachment: fixed;
-            background-repeat: no-repeat;
-            background-color: var(--bg-main);
             
             height: 100vh; display: flex; flex-direction: column;
         }
 
         header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 30px; background: rgba(25, 3, 22, 0.95); border-bottom: 2px solid var(--accent);
-            box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+            padding: 15px 30px; background: rgba(20, 2, 18, 0.95); border-bottom: 3px solid var(--accent);
+            box-shadow: 0 4px 15px rgba(255, 0, 127, 0.4);
         }
         header .logo { font-size: 1.5rem; font-weight: 800; color: #ffffff; text-shadow: 0 0 8px var(--accent); }
-        header .stats { font-size: 0.9rem; color: var(--accent-gold); font-weight: 600; text-shadow: 0 0 5px var(--accent-gold); }
+        header .stats { font-size: 0.9rem; color: var(--accent-gold); font-weight: 600; }
 
         .home-screen {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -89,7 +83,7 @@
 
     <header>
         <div class="logo">StrangerPulse // Rangeelo Rajasthan</div>
-        <div class="stats">● 3,142 Chhoris & Chhoras Online</div>
+        <div class="stats">● 3,142 Users Online</div>
     </header>
 
     <div class="home-screen" id="homeScreen">
@@ -164,11 +158,8 @@
     </div>
 
     <script>
-        // 🔒 रेंडर के आंतरिक पाथ को ऑटो-डिटेक्ट करना (यह रेंडर सर्वर क्रैश को रोकेगा)
-        const socket = io(window.location.origin, {
-            transports: ['websocket', 'polling'],
-            upgrade: true
-        });
+        // 🔒 ऑटो-डिटेक्ट डोमेन गेटवे (यह बिना किसी एक्स्ट्रा लाइब्रेरी के पक्का कनेक्ट होगा)
+        const socket = io();
 
         let localStream;
         let peerConnection;
@@ -178,3 +169,12 @@
         async function startMatching(mode) {
             chatMode = mode;
             document.getElementById('homeScreen').style.display = 'none';
+            document.getElementById('appScreen').style.display = 'flex';
+            document.getElementById('messageBox').innerHTML = `<p class="msg-system">Searching for a perfect match based on your filters...</p>`;
+            
+            if (chatMode === 'video') {
+                document.getElementById('videoWrapper').style.display = 'flex';
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    document.getElementById('localVideo').srcObject = localStream;
+                } catch (err) {
