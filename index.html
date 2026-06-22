@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StrangerPulse - Rangeelo Rajasthan</title>
+    <title>Meet with love</title>
     <style>
         :root {
-            --bg-card: rgba(45, 10, 40, 0.88);
+            --bg-card: rgba(20, 20, 30, 0.85);
             --accent: #ff007f;
-            --accent-gold: #ffd700;
             --text: #ffffff;
             --text-muted: #f3d5ff;
             --border: rgba(255, 0, 127, 0.4);
@@ -18,7 +17,7 @@
             margin: 0; padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             
-            /* 🎨 परफैक्ट और सिक्योर राजस्थानी लहरिया ओढ़नी कलर्स का बैकग्राउंड ग्रेडिएंट (यह कभी ब्लैक नहीं दिखेगा!) */
+            /* 🎨 सिर्फ कलरफुल लहरिया ओढ़नी कलर्स का बैकग्राउंड ग्रेडिएंट */
             background: linear-gradient(135deg, #ff007f 0%, #ff7700 25%, #ffd700 50%, #7f00ff 75%, #0c0211 100%);
             background-attachment: fixed;
             
@@ -27,18 +26,18 @@
 
         header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 30px; background: rgba(20, 2, 18, 0.95); border-bottom: 3px solid var(--accent);
+            padding: 15px 30px; background: rgba(15, 15, 25, 0.95); border-bottom: 3px solid var(--accent);
             box-shadow: 0 4px 15px rgba(255, 0, 127, 0.4);
         }
         header .logo { font-size: 1.5rem; font-weight: 800; color: #ffffff; text-shadow: 0 0 8px var(--accent); }
-        header .stats { font-size: 0.9rem; color: var(--accent-gold); font-weight: 600; }
+        header .stats { font-size: 0.9rem; color: #39ff14; font-weight: 600; }
 
         .home-screen {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             flex: 1; text-align: center; padding: 20px;
         }
         .home-screen h2 { font-size: 2.6rem; margin-bottom: 10px; font-weight: 700; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-        .home-screen p { color: var(--text-muted); max-width: 500px; margin-bottom: 30px; font-size: 1.1rem; text-shadow: 0 1px 5px rgba(0,0,0,0.5); }
+        .home-screen p { color: var(--text-muted); max-width: 500px; margin-bottom: 30px; font-size: 1.1rem; }
         
         .filters-container {
             background: var(--bg-card); padding: 25px; border-radius: 16px;
@@ -47,7 +46,7 @@
         }
         .filter-row { display: flex; justify-content: space-between; margin-bottom: 15px; text-align: left; gap: 15px; }
         .filter-row div { flex: 1; display: flex; flex-direction: column; }
-        .filter-row label { font-size: 0.8rem; text-transform: uppercase; color: var(--accent-gold); margin-bottom: 5px; font-weight: bold; }
+        .filter-row label { font-size: 0.8rem; text-transform: uppercase; color: #ffd700; margin-bottom: 5px; font-weight: bold; }
         .filter-row select { background: #0c0211; color: white; border: 1px solid var(--border); padding: 12px; border-radius: 8px; outline: none; cursor: pointer; }
 
         .action-buttons { display: flex; gap: 15px; width: 100%; max-width: 500px; }
@@ -66,7 +65,7 @@
         .chat-wrapper { flex: 1; background: #0c020f; display: flex; flex-direction: column; }
         .messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         .messages-area p { margin: 0; padding: 12px 16px; border-radius: 18px; max-width: 75%; font-size: 0.95rem; line-height: 1.4; word-break: break-word; }
-        .msg-system { background: transparent; color: var(--accent-gold); align-self: center; font-size: 0.85rem; text-align: center; font-weight: bold; }
+        .msg-system { background: transparent; color: #ffd700; align-self: center; font-size: 0.85rem; text-align: center; font-weight: bold; }
         .msg-you { background: #23051f; color: white; align-self: flex-end; border: 1px solid var(--accent); }
         .msg-stranger { background: #1c0921; color: white; align-self: flex-start; border: 1px solid rgba(255,255,255,0.05); }
 
@@ -82,13 +81,13 @@
 <body>
 
     <header>
-        <div class="logo">StrangerPulse // Rangeelo Rajasthan</div>
+        <div class="logo">StrangerPulse</div>
         <div class="stats">● 3,142 Users Online</div>
     </header>
 
     <div class="home-screen" id="homeScreen">
         <h2>Talk to Strangers, Instantly.</h2>
-        <p>Free random video and text chat with real people worldwide based on your traditional preferences.</p>
+        <p>Free random video and text chat with real people worldwide based on your preferences.</p>
         
         <div class="filters-container">
             <div class="filter-row">
@@ -158,7 +157,6 @@
     </div>
 
     <script>
-        // 🔒 ऑटो-डिटेक्ट डोमेन गेटवे (यह बिना किसी एक्स्ट्रा लाइब्रेरी के पक्का कनेक्ट होगा)
         const socket = io();
 
         let localStream;
@@ -178,3 +176,8 @@
                     localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                     document.getElementById('localVideo').srcObject = localStream;
                 } catch (err) {
+                    alert("Camera access denied! Switching to Text Mode.");
+                    document.getElementById('videoWrapper').style.display = 'none';
+                    chatMode = 'text';
+                }
+            } else {
