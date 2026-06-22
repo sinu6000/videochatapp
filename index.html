@@ -145,41 +145,87 @@
     <!-- कैमरा चालू करने और चैट चलाने का जावास्क्रिप्ट कोड -->
        <!-- Socket.io लाइब्रेरी को जोड़ना -->
     <script src="/socket.io/socket.io.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
     <script>
-        // सर्वर से कनेक्ट करना
         const socket = io();
+        let localStream;
+        let peerConnection;
 
-        // 1. आपका कैमरा और माइक चालू करने का फंक्शन
+        // फ्री गूगल सर्वर (STUN Servers) जो दो नेटवर्क को आपस में जोड़ते हैं
+        const config = {
+            iceServers: [{ urls: "stun:://google.com" }]
+        };
+
+        // 1. कैमरा चालू करना और कॉल शुरू करना
         async function startCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                document.getElementById('localVideo').srcObject = stream;
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('localVideo').srcObject = localStream;
+                
+                // कॉल सेटअप करना
+                setupPeerConnection();
             } catch (error) {
-                alert("Camera access denied or not found!");
+                alert("Camera access denied!");
             }
         }
 
-        // 2. चैट बॉक्स में मैसेज भेजना (सर्वर को भेजना)
+        // 2. WebRTC कनेक्शन सेटअप करना
+        function setupPeerConnection() {
+            peerConnection = new RTCPeerConnection(config);
+
+            // अपना वीडियो ट्रैक कनेक्शन में जोड़ना
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+            // जब सामने वाले का वीडियो ट्रैक मिले, तो स्क्रीन पर दिखाना
+            peerConnection.ontrack = (event) => {
+                document.getElementById('remoteVideo').srcObject = event.streams[0];
+            };
+
+            // इंटरनेट कनेक्शन के सिग्नल्स सर्वर को भेजना
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    socket.emit('signal', { candidate: event.candidate });
+                }
+            };
+
+            // कॉल का न्योता (Offer) बनाना और भेजना
+            peerConnection.createOffer().then(offer => {
+                return peerConnection.setLocalDescription(offer);
+            }).then(() => {
+                socket.emit('signal', { offer: peerConnection.localDescription });
+            });
+        }
+
+        // 3. सर्वर से सामने वाले के सिग्नल्स मिलना
+        socket.on('signal', async (data) => {
+            if (!peerConnection) return;
+
+            if (data.offer) {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                socket.emit('signal', { answer: peerConnection.localDescription });
+            } else if (data.answer) {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+            } else if (data.candidate) {
+                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+            }
+        });
+
+        // 4. चैट मैसेज भेजना
         function sendMessage() {
             let input = document.getElementById('msgInput');
             if(input.value.trim() !== "") {
-                let msg = input.value;
-                
-                // खुद की स्क्रीन पर दिखाना
-                showNewMessage(`<b>You:</b> ${msg}`);
-                
-                // सर्वर को भेजना ताकि दूसरों को मिले
-                socket.emit('chat-message', msg);
+                showNewMessage(`<b>You:</b> ${input.value}`);
+                socket.emit('chat-message', input.value);
                 input.value = "";
             }
         }
 
-        // 3. जब कोई दूसरा व्यक्ति मैसेज भेजेगा (सर्वर से मैसेज मिलना)
         socket.on('chat-message', (msg) => {
             showNewMessage(`<b>Stranger:</b> ${msg}`);
         });
 
-        // स्क्रीन पर मैसेज प्रिंट करने का कॉमन फंक्शन
         function showNewMessage(text) {
             let box = document.getElementById('messageBox');
             box.innerHTML += `<p>${text}</p>`;
@@ -187,6 +233,3 @@
         }
     </script>
 
-
-</body>
-</html>

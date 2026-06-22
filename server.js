@@ -7,31 +7,22 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// index.html फाइल को सर्व करने के लिए
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// जब कोई यूजर वेबसाइट पर आएगा
+// वीडियो कॉल सिग्नल्स को एक यूजर से दूसरे यूजर तक भेजने के लिए
 io.on('connection', (socket) => {
-    console.log('एक नया यूजर जुड़ गया है: ' + socket.id);
-
-    // चैट मैसेज को बाकी सभी लोगों तक पहुँचाना
-    socket.on('chat-message', (data) => {
-        socket.broadcast.emit('chat-message', data);
+    socket.on('chat-message', (msg) => {
+        socket.broadcast.emit('chat-message', msg);
     });
 
-    // वीडियो कॉल सिग्नलिंग (WebRTC के लिए)
+    // WebRTC सिग्नल्स (Offer, Answer, Candidates) ट्रांसफर करना
     socket.on('signal', (data) => {
         socket.broadcast.emit('signal', data);
     });
-
-    socket.on('disconnect', () => {
-        console.log('यूजर चला गया: ' + socket.id);
-    });
 });
 
-// सर्वर को पोर्ट 3000 पर चालू करना
 server.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
+    console.log('Server runs on port 3000');
 });
