@@ -3,99 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StrangerPulse - Chat with Strangers</title>
+    <title>StrangerPulse - Colorful Rajasthani Leheriya Theme</title>
     <style>
         :root {
-            --bg-main: #0a0a0c;
-            --bg-card: rgba(26, 26, 36, 0.85);
-            --accent: #ff4757;
-            --accent-blue: #2ed573;
+            --bg-main: #0c020f;
+            --bg-card: rgba(28, 5, 26, 0.88); /* पारदर्शी ट्रेडिशनल डार्क लुक */
+            --accent: #ff007f; /* ब्राइट राजस्थानी पिंक */
+            --accent-gold: #ffd700; /* राजस्थानी जरी वर्क गोल्ड */
+            --accent-blue: #00f0ff; 
             --text: #ffffff;
-            --text-muted: #a4b0be;
-            --border: rgba(255, 255, 255, 0.12);
+            --text-muted: #e0b0ff;
+            --border: rgba(255, 0, 127, 0.3);
         }
 
         body {
             margin: 0; padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)), url('https://unsplash.com');
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            
+            /* 📸 यहाँ पर कलरफुल राजस्थानी लहरिया ओढ़नी का परफैक्ट वर्किंग वॉलपेपर सेट कर दिया है */
+            background-image: linear-gradient(rgba(12, 2, 15, 0.5), rgba(12, 2, 15, 0.7)), url('https://unsplash.com');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
             background-color: var(--bg-main);
+            
             height: 100vh; display: flex; flex-direction: column;
         }
 
         header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 30px; background: rgba(14, 14, 18, 0.95); border-bottom: 1px solid var(--border);
+            padding: 15px 30px; background: rgba(25, 3, 22, 0.95); border-bottom: 2px solid var(--accent);
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
         }
-        header .logo { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
-        header .stats { font-size: 0.9rem; color: var(--accent-blue); font-weight: 600; }
+        header .logo { font-size: 1.5rem; font-weight: 800; color: #ffffff; text-shadow: 0 0 8px var(--accent); }
+        header .stats { font-size: 0.9rem; color: var(--accent-gold); font-weight: 600; text-shadow: 0 0 5px var(--accent-gold); }
 
         .home-screen {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             flex: 1; text-align: center; padding: 20px;
         }
-        .home-screen h2 { font-size: 2.5rem; margin-bottom: 10px; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.6); }
-        .home-screen p { color: var(--text-muted); max-width: 500px; margin-bottom: 30px; font-size: 1.1rem; }
+        .home-screen h2 { font-size: 2.6rem; margin-bottom: 10px; font-weight: 700; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+        .home-screen p { color: var(--text-muted); max-width: 500px; margin-bottom: 30px; font-size: 1.1rem; text-shadow: 0 1px 5px rgba(0,0,0,0.5); }
         
         .filters-container {
             background: var(--bg-card); padding: 25px; border-radius: 16px;
             border: 1px solid var(--border); width: 100%; max-width: 450px; margin-bottom: 25px;
-            backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
         .filter-row { display: flex; justify-content: space-between; margin-bottom: 15px; text-align: left; gap: 15px; }
         .filter-row div { flex: 1; display: flex; flex-direction: column; }
-        .filter-row label { font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; font-weight: bold; }
-        .filter-row select { background: #0e0e11; color: white; border: 1px solid var(--border); padding: 12px; border-radius: 8px; outline: none; cursor: pointer; }
+        .filter-row label { font-size: 0.8rem; text-transform: uppercase; color: var(--accent-gold); margin-bottom: 5px; font-weight: bold; }
+        .filter-row select { background: #0c0211; color: white; border: 1px solid var(--border); padding: 12px; border-radius: 8px; outline: none; cursor: pointer; }
 
         .action-buttons { display: flex; gap: 15px; width: 100%; max-width: 500px; }
-        .start-btn { flex: 1; padding: 16px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-text { background: #2f3542; color: white; border: 1px solid var(--border); }
-        .btn-video { background: var(--accent); color: white; }
+        .start-btn { flex: 1; padding: 16px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        .btn-text { background: #23051f; color: white; border: 1px solid var(--accent); box-shadow: 0 0 10px rgba(255, 0, 127, 0.2); }
+        .btn-video { background: var(--accent); color: white; box-shadow: 0 0 15px var(--accent); }
         .start-btn:hover { transform: translateY(-2px); opacity: 0.9; }
 
         .app-screen { display: none; flex: 1; height: calc(100vh - 65px); }
         
         .video-wrapper { flex: 1.2; background: #000; position: relative; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
-        .video-box { width: 100%; height: 50%; background: #050507; position: relative; overflow: hidden; border-bottom: 1px solid var(--border); }
+        .video-box { width: 100%; height: 50%; background: #050108; position: relative; overflow: hidden; border-bottom: 1px solid var(--border); }
         video { width: 100%; height: 100%; object-fit: cover; }
-        .video-label { position: absolute; bottom: 15px; left: 15px; background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 600; }
+        .video-label { position: absolute; bottom: 15px; left: 15px; background: rgba(0,0,0,0.7); padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; border: 1px solid var(--accent); }
         
-        .chat-wrapper { flex: 1; background: #0e0e11; display: flex; flex-direction: column; }
+        .chat-wrapper { flex: 1; background: #0c020f; display: flex; flex-direction: column; }
         .messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         .messages-area p { margin: 0; padding: 12px 16px; border-radius: 18px; max-width: 75%; font-size: 0.95rem; line-height: 1.4; word-break: break-word; }
-        .msg-system { background: transparent; color: var(--text-muted); align-self: center; font-size: 0.85rem; text-align: center; }
-        .msg-you { background: #2f3542; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .msg-stranger { background: #1c1c24; color: white; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
+        .msg-system { background: transparent; color: var(--accent-gold); align-self: center; font-size: 0.85rem; text-align: center; font-weight: bold; }
+        .msg-you { background: #23051f; color: white; align-self: flex-end; border: 1px solid var(--accent); }
+        .msg-stranger { background: #1c0921; color: white; align-self: flex-start; border: 1px solid rgba(255,255,255,0.05); }
 
-        .input-bar { padding: 15px; background: #16161c; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
-        .input-bar input { flex: 1; background: #0e0e11; border: 1px solid var(--border); padding: 14px; border-radius: 25px; color: white; font-size: 1rem; outline: none; }
-        .btn-skip { background: #3e444f; color: white; border: none; padding: 14px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 0.95rem; }
-        .btn-send { background: var(--accent); color: white; border: none; padding: 14px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 0.95rem; }
+        .input-bar { padding: 15px; background: #1a0418; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
+        .input-bar input { flex: 1; background: #0c020f; border: 1px solid var(--border); padding: 14px; border-radius: 25px; color: white; font-size: 1rem; outline: none; }
+        .btn-skip { background: #3a1534; color: white; border: none; padding: 14px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        .btn-send { background: var(--accent); color: white; border: none; padding: 14px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; }
         
-        .status-badge { position: absolute; top: 15px; left: 15px; background: var(--accent); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; z-index: 10; }
+        .status-badge { position: absolute; top: 15px; left: 15px; background: var(--accent); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; z-index: 10; box-shadow: 0 0 10px var(--accent); }
     </style>
-    <!-- 🌐 लाइब्रेरी को सबसे पहले हेड टैग में लोड कर रहे हैं ताकि कोई एरर न आए -->
     <script src="https://socket.io"></script>
 </head>
 <body>
 
     <header>
-        <div class="logo">StrangerPulse</div>
-        <div class="stats">● 3,142 Users Online</div>
+        <div class="logo">StrangerPulse // Rangeelo Rajasthan</div>
+        <div class="stats">● 3,142 Chhoris & Chhoras Online</div>
     </header>
 
     <div class="home-screen" id="homeScreen">
         <h2>Talk to Strangers, Instantly.</h2>
-        <p>Free random video and text chat with real people worldwide based on your preferences.</p>
+        <p>Free random video and text chat with real people worldwide based on your traditional preferences.</p>
         
         <div class="filters-container">
             <div class="filter-row">
                 <div>
-                    <label>My Gender</label>
+                    <label>My Profile</label>
                     <select id="myGender">
                         <option value="boy">Boy 🕺</option>
                         <option value="girl">Girl 💃</option>
@@ -160,8 +164,11 @@
     </div>
 
     <script>
-        // सर्वर कनेक्शन को पूरी सुरक्षा के साथ इनिशियलाइज़ करना
-        const socket = io();
+        // 🔒 रेंडर के आंतरिक पाथ को ऑटो-डिटेक्ट करना (यह रेंडर सर्वर क्रैश को रोकेगा)
+        const socket = io(window.location.origin, {
+            transports: ['websocket', 'polling'],
+            upgrade: true
+        });
 
         let localStream;
         let peerConnection;
@@ -171,13 +178,3 @@
         async function startMatching(mode) {
             chatMode = mode;
             document.getElementById('homeScreen').style.display = 'none';
-            document.getElementById('appScreen').style.display = 'flex';
-            document.getElementById('messageBox').innerHTML = `<p class="msg-system">Searching for a perfect stranger...</p>`;
-            
-            if (chatMode === 'video') {
-                document.getElementById('videoWrapper').style.display = 'flex';
-                try {
-                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                    document.getElementById('localVideo').srcObject = localStream;
-                } catch (err) {
-                    alert("Camera access denied! Switching to Text Mode.");
