@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StrangerPulse - Chat with Strangers</title>
     <style>
-        /* Yapping & StrangerLine Inspired Clean Theme */
         :root {
-            --bg-main: #0e0e11;
-            --bg-card: rgba(22, 22, 28, 0.85);
+            --bg-card: rgba(22, 22, 28, 0.9);
             --accent: #ff4757;
             --accent-blue: #2ed573;
             --text: #ffffff;
@@ -20,38 +18,36 @@
             margin: 0; padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             
-            /* 📸 बैकग्राउंड इमेज सेटअप डार्क ओवरले के साथ */
-            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)), url('https://ibb.co');
+            /* 📸 यहाँ हमने अनस्प्लैश (Unsplash) का 100% वर्किंग फिटनेस इमेज लिंक लगा दिया है */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)), url('https://unsplash.com');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
+            background-color: #0e0e11; /* इमेज लोड न होने पर भी डार्क मोड रहेगा */
             
             height: 100vh; display: flex; flex-direction: column;
         }
 
-        /* टॉप हेडर बार */
         header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 30px; background: rgba(22, 22, 28, 0.9); border-bottom: 1px solid var(--border);
+            padding: 15px 30px; background: rgba(22, 22, 28, 0.95); border-bottom: 1px solid var(--border);
             backdrop-filter: blur(5px);
         }
         header .logo { font-size: 1.5rem; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
         header .stats { font-size: 0.9rem; color: var(--accent-blue); font-weight: 600; }
 
-        /* होम स्क्रीन लेआउट */
         .home-screen {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             flex: 1; text-align: center; padding: 20px;
         }
         .home-screen h2 { font-size: 2.5rem; margin-bottom: 10px; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-        .home-screen p { color: var(--text-muted); max-width: 500px; margin-bottom: 30px; font-size: 1.1rem; text-shadow: 0 1px 5px rgba(0,0,0,0.5); }
+        .home-screen p { color: var(--text-muted); max-width: 500px; margin-bottom: 30px; font-size: 1.1rem; }
         
-        /* फिल्टर्स कार्ड ग्लास इफेक्ट के साथ */
         .filters-container {
             background: var(--bg-card); padding: 25px; border-radius: 16px;
             border: 1px solid var(--border); width: 100%; max-width: 450px; margin-bottom: 25px;
-            backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.5);
         }
         .filter-row { display: flex; justify-content: space-between; margin-bottom: 15px; text-align: left; gap: 15px; }
         .filter-row div { flex: 1; display: flex; flex-direction: column; }
@@ -62,18 +58,15 @@
         .start-btn { flex: 1; padding: 16px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-text { background: #2f3542; color: white; border: 1px solid var(--border); }
         .btn-video { background: var(--accent); color: white; }
-        .start-btn:hover { transform: translateY(-2px); opacity: 0.9; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .start-btn:hover { transform: translateY(-2px); opacity: 0.9; }
 
-        /* मुख्य लाइव चैट स्क्रीन */
         .app-screen { display: none; flex: 1; height: calc(100vh - 65px); }
         
-        /* वीडियो लेआउट (लेफ्ट) */
         .video-wrapper { flex: 1.2; background: #000; position: relative; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
         .video-box { width: 100%; height: 50%; background: #050507; position: relative; overflow: hidden; border-bottom: 1px solid var(--border); }
         video { width: 100%; height: 100%; object-fit: cover; }
         .video-label { position: absolute; bottom: 15px; left: 15px; background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 600; }
         
-        /* चैट मैसेंजर लेआउट (राइट) */
         .chat-wrapper { flex: 1; background: #0e0e11; display: flex; flex-direction: column; }
         .messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         .messages-area p { margin: 0; padding: 12px 16px; border-radius: 18px; max-width: 75%; font-size: 0.95rem; line-height: 1.4; word-break: break-word; }
@@ -81,7 +74,6 @@
         .msg-you { background: #2f3542; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
         .msg-stranger { background: #1c1c24; color: white; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
 
-        /* इनपुट और स्किप कंट्रोल्स बार */
         .input-bar { padding: 15px; background: #16161c; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
         .input-bar input { flex: 1; background: #0e0e11; border: 1px solid var(--border); padding: 14px; border-radius: 25px; color: white; font-size: 1rem; outline: none; }
         .btn-skip { background: #3e444f; color: white; border: none; padding: 14px 25px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 0.95rem; }
@@ -97,7 +89,6 @@
         <div class="stats">● 3,142 Users Online</div>
     </header>
 
-    <!-- 📋 होम स्क्रीन फिल्टर्स के साथ -->
     <div class="home-screen" id="homeScreen">
         <h2>Talk to Strangers, Instantly.</h2>
         <p>Free random video and text chat with real people worldwide based on your preferences.</p>
@@ -146,7 +137,6 @@
         </div>
     </div>
 
-    <!-- 🎥 लाइव चैटिंग रूम -->
     <div class="app-screen" id="appScreen">
         <div class="video-wrapper" id="videoWrapper">
             <div class="status-badge" id="statusText">Searching...</div>
@@ -170,7 +160,8 @@
         </div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
+    <!-- 🌐 यहाँ हमने डायरेक्ट CDN लिंक जोड़ दिया है, जो लाइव सर्वर से पक्का कनेक्ट होगा -->
+    <script src="https://socket.io"></script>
     <script>
         const socket = io();
         let localStream;
@@ -186,3 +177,5 @@
             
             if (chatMode === 'video') {
                 document.getElementById('videoWrapper').style.display = 'flex';
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
