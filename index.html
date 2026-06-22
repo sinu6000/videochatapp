@@ -6,25 +6,26 @@
     <title>StrangerPulse - Chat with Strangers</title>
     <style>
         :root {
+            --bg-main: #0e0e11;
             --bg-card: rgba(22, 22, 28, 0.9);
             --accent: #ff4757;
             --accent-blue: #2ed573;
             --text: #ffffff;
             --text-muted: #a4b0be;
-            --border: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.15);
         }
 
         body {
             margin: 0; padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             
-            /* 📸 यहाँ हमने अनस्प्लैश (Unsplash) का 100% वर्किंग फिटनेस इमेज लिंक लगा दिया है */
+            /* 📸 100% वर्किंग फिटनेस इमेज वॉलपेपर डार्क ओवरले के साथ */
             background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)), url('https://unsplash.com');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
-            background-color: #0e0e11; /* इमेज लोड न होने पर भी डार्क मोड रहेगा */
+            background-color: var(--bg-main);
             
             height: 100vh; display: flex; flex-direction: column;
         }
@@ -34,7 +35,7 @@
             padding: 15px 30px; background: rgba(22, 22, 28, 0.95); border-bottom: 1px solid var(--border);
             backdrop-filter: blur(5px);
         }
-        header .logo { font-size: 1.5rem; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
+        header .logo { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
         header .stats { font-size: 0.9rem; color: var(--accent-blue); font-weight: 600; }
 
         .home-screen {
@@ -47,7 +48,7 @@
         .filters-container {
             background: var(--bg-card); padding: 25px; border-radius: 16px;
             border: 1px solid var(--border); width: 100%; max-width: 450px; margin-bottom: 25px;
-            backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.6);
         }
         .filter-row { display: flex; justify-content: space-between; margin-bottom: 15px; text-align: left; gap: 15px; }
         .filter-row div { flex: 1; display: flex; flex-direction: column; }
@@ -160,10 +161,11 @@
         </div>
     </div>
 
-    <!-- 🌐 यहाँ हमने डायरेक्ट CDN लिंक जोड़ दिया है, जो लाइव सर्वर से पक्का कनेक्ट होगा -->
+    <!-- 🌐 रेंडर लाइव डोमेन से डायरेक्ट कनेक्शन फ़िक्स -->
     <script src="https://socket.io"></script>
     <script>
-        const socket = io();
+        // लाइव रेंडर डोमेन को सीधे फ़ोर्स करना ताकि कनेक्शन कभी रिफ़्यूज़ न हो
+        const socket = io("https://onrender.com");
         let localStream;
         let peerConnection;
         let chatMode = 'text';
