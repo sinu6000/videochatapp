@@ -5,80 +5,134 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-
-// बिना किसी बाहरी लाइब्रेरी के सीधा सॉकेट.इओ में ही क्रॉस-ओरिजिन अलाउ करना
 const io = new Server(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
+  cors: { origin: '*', methods: ['GET', 'POST'] },
+  transports: ['websocket', 'polling']
+});
+
+// Serve frontend
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// ─── State ───
+const waitingQueues = {
+  text: [],
+  video: []
+};
+const rooms = new Map(); // socketId -> partnerId
+let onlineCount = 0;
+
+// ─── Helper: match two users ───
+function tryMatch(socket, mode, filters) {
+  const queue = waitingQueues[mode];
+
+  // Find a compatible partner in queue
+  const idx = queue.findIndex(w => w.id !== socket.id);
+
+  if (idx !== -1) {
+    const partner = queue.splice(idx, 1)[0];
+
+    // Create room
+    rooms.set(socket.id, partner.id);
+    rooms.set(partner.id, socket.id);
+
+    // Notify both
+    socket.emit('matched', { partnerId: partner.id, initiator: true });
+    partner.emit('matched', { partnerId: socket.id, initiator: false });
+
+    console.log(`Matched: ${socket.id} <-> ${partner.id} [${mode}]`);
+  } else {
+    // Add to queue
+    if (!queue.find(w => w.id === socket.id)) {
+      queue.push(socket);
     }
-});
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-let waitingUsers = [];
-
-io.on('connection', (socket) => {
-    console.log('Node active:', socket.id);
-
-    socket.on('join-matching', (preferences) => {
-        waitingUsers = waitingUsers.filter(user => user.id !== socket.id);
-
-        const userProfile = {
-            id: socket.id,
-            mode: preferences.mode,
-            myGender: preferences.myGender,
-            lookFor: preferences.lookFor,
-            country: preferences.country,
-            language: preferences.language
-        };
-
-        let matchIndex = waitingUsers.findIndex(peer => {
-            return userProfile.mode === peer.mode &&
-                   (userProfile.lookFor === 'anyone' || userProfile.lookFor === peer.myGender) &&
-                   (peer.lookFor === 'anyone' || peer.lookFor === userProfile.myGender) &&
-                   (userProfile.country === 'any' || peer.country === 'any' || userProfile.country === peer.country) &&
-                   (userProfile.language === 'any' || peer.language === 'any' || userProfile.language === peer.language);
-        });
-
-        if (matchIndex !== -1) {
-            let partner = waitingUsers.splice(matchIndex, 1)[0];
-
-            io.to(socket.id).emit('matched', { role: 'creator' });
-            io.to(partner.id).emit('matched', { role: 'joiner' });
-
-            socket.partnerId = partner.id;
-            const partnerSocket = io.sockets.sockets.get(partner.id);
-            if(partnerSocket) partnerSocket.partnerId = socket.id;
-        } else {
-            waitingUsers.push(userProfile);
-            io.to(socket.id).emit('waiting');
-        }
-    });
-
-    socket.on('chat-message', (msg) => {
-        if (socket.partnerId) io.to(socket.partnerId).emit('chat-message', msg);
-    });
-
-    socket.on('signal', (data) => {
-        if (socket.partnerId) io.to(socket.partnerId).emit('signal', data);
-    });
-
-    socket.on('leave-chat', () => { handleDisconnect(socket); });
-    socket.on('disconnect', () => { handleDisconnect(socket); });
-});
-
-function handleDisconnect(socket) {
-    waitingUsers = waitingUsers.filter(user => user.id !== socket.id);
-    if (socket.partnerId) {
-        io.to(socket.partnerId).emit('partner-disconnected');
-        const partnerSocket = io.sockets.sockets.get(socket.partnerId);
-        if (partnerSocket) partnerSocket.partnerId = null;
-        socket.partnerId = null;
-    }
+    socket.emit('waiting');
+    console.log(`Waiting: ${socket.id} [${mode}] queue size: ${queue.length}`);
+  }
 }
 
-const PORT = process.env.PORT || 10000;
-server.listen(PORT, '0.0.0.0', () => console.log(`Gateway active on port ${PORT}`));
+function removeFromQueues(socketId) {
+  ['text', 'video'].forEach(mode => {
+    waitingQueues[mode] = waitingQueues[mode].filter(s => s.id !== socketId);
+  });
+}
+
+function disconnectPartner(socketId) {
+  const partnerId = rooms.get(socketId);
+  if (partnerId) {
+    const partnerSocket = io.sockets.sockets.get(partnerId);
+    if (partnerSocket) {
+      partnerSocket.emit('partnerDisconnected');
+    }
+    rooms.delete(partnerId);
+    rooms.delete(socketId);
+  }
+}
+
+// ─── Socket Events ───
+io.on('connection', (socket) => {
+  onlineCount++;
+  io.emit('onlineCount', onlineCount);
+  console.log(`Connected: ${socket.id} | Total: ${onlineCount}`);
+
+  // Find match
+  socket.on('findMatch', ({ mode, filters }) => {
+    removeFromQueues(socket.id);
+    disconnectPartner(socket.id);
+    const chatMode = mode === 'video' ? 'video' : 'text';
+    tryMatch(socket, chatMode, filters);
+  });
+
+  // Chat message
+  socket.on('message', ({ to, message }) => {
+    const partnerSocket = io.sockets.sockets.get(to);
+    if (partnerSocket) {
+      partnerSocket.emit('message', { message });
+    }
+  });
+
+  // WebRTC signaling
+  socket.on('signal', ({ to, signal }) => {
+    const partnerSocket = io.sockets.sockets.get(to);
+    if (partnerSocket) {
+      partnerSocket.emit('signal', { signal });
+    }
+  });
+
+  // Game actions (Truth/Dare, TTT, Quiz)
+  socket.on('gameAction', ({ to, action, data }) => {
+    const partnerSocket = io.sockets.sockets.get(to);
+    if (partnerSocket) {
+      partnerSocket.emit('gameAction', { action, data });
+    }
+  });
+
+  // Skip
+  socket.on('skip', () => {
+    disconnectPartner(socket.id);
+    removeFromQueues(socket.id);
+  });
+
+  // Leave
+  socket.on('leave', () => {
+    disconnectPartner(socket.id);
+    removeFromQueues(socket.id);
+  });
+
+  // Disconnect
+  socket.on('disconnect', () => {
+    onlineCount = Math.max(0, onlineCount - 1);
+    io.emit('onlineCount', onlineCount);
+    disconnectPartner(socket.id);
+    removeFromQueues(socket.id);
+    console.log(`Disconnected: ${socket.id} | Total: ${onlineCount}`);
+  });
+});
+
+// ─── Start Server ───
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
