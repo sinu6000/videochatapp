@@ -7,347 +7,135 @@
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0f0f1a; color: #fff; min-height: 100vh; overflow-x: hidden; }
 
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #0f0f1a;
-      color: #fff;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 18px 32px; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); }
+    .logo { font-size: 1.4rem; font-weight: 700; background: linear-gradient(135deg, #a78bfa, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .online-badge { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #86efac; background: rgba(134,239,172,0.1); border: 1px solid rgba(134,239,172,0.25); padding: 6px 14px; border-radius: 20px; }
+    .online-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
 
-    /* ── HEADER ── */
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 18px 32px;
-      background: rgba(255,255,255,0.04);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      backdrop-filter: blur(12px);
-    }
-    .logo {
-      font-size: 1.4rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #a78bfa, #f472b6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .online-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
-      color: #86efac;
-      background: rgba(134,239,172,0.1);
-      border: 1px solid rgba(134,239,172,0.25);
-      padding: 6px 14px;
-      border-radius: 20px;
-    }
-    .online-dot {
-      width: 8px; height: 8px;
-      background: #22c55e;
-      border-radius: 50%;
-      animation: pulse 1.5s infinite;
-    }
-    @keyframes pulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.3); }
-    }
+    #homeScreen { display: flex; flex-direction: column; align-items: center; padding: 48px 20px 60px; }
+    .hero-title { font-size: clamp(2rem,5vw,3.2rem); font-weight: 800; text-align: center; line-height: 1.2; margin-bottom: 12px; }
+    .hero-title span { background: linear-gradient(135deg,#a78bfa,#f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-sub { color: #94a3b8; text-align: center; max-width: 480px; margin-bottom: 40px; font-size: 1rem; line-height: 1.6; }
 
-    /* ── HOME SCREEN ── */
-    #homeScreen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 48px 20px 60px;
-    }
-    .hero-title {
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 800;
-      text-align: center;
-      line-height: 1.2;
-      margin-bottom: 12px;
-    }
-    .hero-title span {
-      background: linear-gradient(135deg, #a78bfa, #f472b6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .hero-sub {
-      color: #94a3b8;
-      text-align: center;
-      max-width: 480px;
-      margin-bottom: 40px;
-      font-size: 1rem;
-      line-height: 1.6;
-    }
-
-    /* ── FILTER CARD ── */
-    .filter-card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 20px;
-      padding: 32px;
-      width: 100%;
-      max-width: 520px;
-      margin-bottom: 28px;
-      backdrop-filter: blur(10px);
-    }
-    .filter-card h3 {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: #64748b;
-      margin-bottom: 16px;
-    }
-    .filter-group {
-      margin-bottom: 24px;
-    }
+    .filter-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 32px; width: 100%; max-width: 520px; margin-bottom: 28px; }
+    .filter-card h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin-bottom: 16px; }
+    .filter-group { margin-bottom: 24px; }
     .filter-group:last-child { margin-bottom: 0; }
-    .chip-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .chip {
-      padding: 8px 18px;
-      border-radius: 50px;
-      border: 1.5px solid rgba(255,255,255,0.15);
-      background: transparent;
-      color: #cbd5e1;
-      cursor: pointer;
-      font-size: 0.88rem;
-      transition: all 0.2s;
-      user-select: none;
-    }
-    .chip:hover {
-      border-color: #a78bfa;
-      color: #a78bfa;
-    }
-    .chip.active {
-      background: linear-gradient(135deg, #7c3aed, #db2777);
-      border-color: transparent;
-      color: #fff;
-      font-weight: 600;
-    }
+    .chip-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .chip { padding: 8px 18px; border-radius: 50px; border: 1.5px solid rgba(255,255,255,0.15); background: transparent; color: #cbd5e1; cursor: pointer; font-size: 0.88rem; transition: all 0.2s; user-select: none; }
+    .chip:hover { border-color: #a78bfa; color: #a78bfa; }
+    .chip.active { background: linear-gradient(135deg,#7c3aed,#db2777); border-color: transparent; color: #fff; font-weight: 600; }
 
-    /* ── CTA BUTTONS ── */
-    .cta-row {
-      display: flex;
-      gap: 16px;
-      width: 100%;
-      max-width: 520px;
-    }
-    .btn-start {
-      flex: 1;
-      padding: 16px;
-      border-radius: 14px;
-      border: none;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      position: relative;
-      overflow: hidden;
-      z-index: 1;
-    }
-    .btn-start::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      transition: opacity 0.2s;
-      z-index: -1;
-    }
-    .btn-text {
-      background: linear-gradient(135deg, #7c3aed, #a855f7);
-      color: #fff;
-    }
-    .btn-text::before { background: rgba(255,255,255,0.1); }
-    .btn-video {
-      background: linear-gradient(135deg, #be185d, #f472b6);
-      color: #fff;
-    }
-    .btn-video::before { background: rgba(255,255,255,0.1); }
-    .btn-start:hover::before { opacity: 1; }
+    .cta-row { display: flex; gap: 16px; width: 100%; max-width: 520px; }
+    .btn-start { flex: 1; padding: 16px; border-radius: 14px; border: none; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-text { background: linear-gradient(135deg,#7c3aed,#a855f7); color: #fff; }
+    .btn-video { background: linear-gradient(135deg,#be185d,#f472b6); color: #fff; }
     .btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
     .btn-start:active { transform: translateY(0); }
 
-    /* ── APP SCREEN ── */
-    #appScreen {
-      display: none;
-      flex-direction: column;
-      height: calc(100vh - 65px);
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 20px;
-      gap: 16px;
-    }
+    #appScreen { display: none; flex-direction: column; height: calc(100vh - 65px); max-width: 1100px; margin: 0 auto; padding: 12px 16px; gap: 10px; }
+    #videoWrapper { display: none; gap: 12px; height: 200px; flex-shrink: 0; }
+    #videoWrapper video { flex: 1; background: #1e1e2e; border-radius: 14px; object-fit: cover; border: 1px solid rgba(255,255,255,0.08); }
+    .video-label { position: relative; flex: 1; }
+    .video-label span { position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.6); padding: 3px 10px; border-radius: 8px; font-size: 0.75rem; }
 
-    /* Video area */
-    #videoWrapper {
-      display: none;
-      gap: 12px;
-      height: 260px;
-    }
-    #videoWrapper video {
-      flex: 1;
-      background: #1e1e2e;
-      border-radius: 14px;
-      object-fit: cover;
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .video-label {
-      position: relative;
-    }
-    .video-label span {
-      position: absolute;
-      bottom: 8px; left: 8px;
-      background: rgba(0,0,0,0.6);
-      padding: 3px 10px;
-      border-radius: 8px;
-      font-size: 0.75rem;
-    }
+    .chat-game-row { display: flex; gap: 12px; flex: 1; min-height: 0; }
+    #chatPanel { display: flex; flex-direction: column; gap: 10px; flex: 1.3; min-width: 0; }
+    #gamePanel { width: 310px; min-width: 260px; display: flex; flex-direction: column; gap: 8px; }
 
-    /* Chat box */
-    #messageBox {
-      flex: 1;
-      overflow-y: auto;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    #messageBox { flex: 1; overflow-y: auto; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     #messageBox::-webkit-scrollbar { width: 4px; }
     #messageBox::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+    .msg { max-width: 78%; padding: 10px 14px; border-radius: 16px; font-size: 0.9rem; line-height: 1.5; word-break: break-word; }
+    .msg-stranger { background: rgba(255,255,255,0.08); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .msg-you { background: linear-gradient(135deg,#7c3aed,#a855f7); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .msg-system { align-self: center; color: #64748b; font-size: 0.78rem; font-style: italic; background: transparent; padding: 2px 0; max-width: 100%; text-align: center; }
+    .msg-game { align-self: center; background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.2); color: #c4b5fd; font-size: 0.8rem; padding: 7px 14px; border-radius: 10px; max-width: 92%; text-align: center; }
+    .searching-msg { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 16px; color: #64748b; }
+    .spinner { width: 36px; height: 36px; border: 3px solid rgba(167,139,250,0.2); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
 
-    .msg {
-      max-width: 70%;
-      padding: 10px 16px;
-      border-radius: 16px;
-      font-size: 0.92rem;
-      line-height: 1.5;
-      word-break: break-word;
-    }
-    .msg-stranger {
-      background: rgba(255,255,255,0.08);
-      align-self: flex-start;
-      border-bottom-left-radius: 4px;
-    }
-    .msg-you {
-      background: linear-gradient(135deg, #7c3aed, #a855f7);
-      align-self: flex-end;
-      border-bottom-right-radius: 4px;
-    }
-    .msg-system {
-      align-self: center;
-      color: #64748b;
-      font-size: 0.8rem;
-      font-style: italic;
-      background: transparent;
-      padding: 4px 0;
-    }
-    .searching-msg {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      gap: 16px;
-      color: #64748b;
-    }
-    .spinner {
-      width: 36px; height: 36px;
-      border: 3px solid rgba(167,139,250,0.2);
-      border-top-color: #a78bfa;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Input row */
-    .input-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-    #messageInput {
-      flex: 1;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 12px;
-      color: #fff;
-      padding: 14px 18px;
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
+    .input-row { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+    #messageInput { flex: 1; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; color: #fff; padding: 12px 16px; font-size: 0.92rem; outline: none; transition: border-color 0.2s; }
     #messageInput:focus { border-color: #a78bfa; }
     #messageInput::placeholder { color: #475569; }
-
-    .btn-send {
-      padding: 14px 24px;
-      background: linear-gradient(135deg, #7c3aed, #a855f7);
-      border: none;
-      border-radius: 12px;
-      color: #fff;
-      font-weight: 700;
-      cursor: pointer;
-      font-size: 0.95rem;
-      transition: all 0.2s;
-    }
-    .btn-send:hover { opacity: 0.9; transform: scale(1.03); }
-
-    .btn-skip {
-      padding: 14px 20px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
-      color: #94a3b8;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.88rem;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
+    .btn-send { padding: 12px 20px; background: linear-gradient(135deg,#7c3aed,#a855f7); border: none; border-radius: 12px; color: #fff; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+    .btn-send:hover { opacity: 0.9; }
+    .btn-skip { padding: 12px 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #94a3b8; font-weight: 600; cursor: pointer; font-size: 0.82rem; white-space: nowrap; transition: all 0.2s; }
     .btn-skip:hover { border-color: #f472b6; color: #f472b6; }
+    .btn-home-sm { padding: 12px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: #64748b; cursor: pointer; font-size: 1rem; transition: all 0.2s; }
+    .btn-home-sm:hover { border-color: #ef4444; color: #ef4444; }
 
-    .btn-home {
-      padding: 14px 20px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      color: #64748b;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.88rem;
-      transition: all 0.2s;
-    }
-    .btn-home:hover { border-color: #ef4444; color: #ef4444; }
+    /* GAME PANEL */
+    .game-header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .game-header h4 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; }
+    .game-tabs { display: flex; gap: 5px; }
+    .gtab { padding: 5px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #64748b; font-size: 0.75rem; cursor: pointer; transition: all 0.15s; }
+    .gtab.active { background: rgba(167,139,250,0.15); border-color: rgba(167,139,250,0.4); color: #c4b5fd; }
+    .game-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 14px; flex: 1; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; min-height: 0; }
+    .game-box::-webkit-scrollbar { width: 3px; }
+    .game-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 
-    /* Responsive */
-    @media (max-width: 600px) {
+    /* TRUTH OR DARE */
+    .tod-wheel-wrap { display: flex; justify-content: center; }
+    .tod-wheel { width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid rgba(167,139,250,0.4); background: conic-gradient(#7c3aed 0% 50%, #be185d 50% 100%); position: relative; transition: transform 0.1s; flex-shrink: 0; }
+    .tod-wheel:hover { transform: scale(1.05); }
+    .tod-wheel.spinning { animation: wspin 0.8s ease-out; }
+    @keyframes wspin { 0%{transform:rotate(0)} 100%{transform:rotate(900deg)} }
+    .tod-center { width: 64px; height: 64px; background: #0f0f1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; position: absolute; }
+    .tod-label { text-align: center; font-size: 0.78rem; color: #64748b; }
+    .tod-card { border-radius: 10px; padding: 12px; text-align: center; font-size: 0.83rem; line-height: 1.5; min-height: 56px; display: flex; align-items: center; justify-content: center; }
+    .tod-card.truth { background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); color: #c4b5fd; }
+    .tod-card.dare { background: rgba(190,24,93,0.15); border: 1px solid rgba(190,24,93,0.3); color: #f9a8d4; }
+    .tod-card.empty { background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1); color: #475569; }
+    .btn-spin { width: 100%; padding: 10px; border-radius: 10px; border: none; background: linear-gradient(135deg,#7c3aed,#be185d); color: #fff; font-weight: 700; cursor: pointer; font-size: 0.85rem; }
+    .btn-spin:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* TIC TAC TOE */
+    .ttt-score { display: flex; justify-content: space-around; flex-shrink: 0; }
+    .ttt-score-item { text-align: center; }
+    .ttt-score-item .val { font-size: 1.3rem; font-weight: 700; }
+    .ttt-score-item .lbl { font-size: 0.68rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+    .ttt-status { text-align: center; font-size: 0.82rem; color: #94a3b8; min-height: 20px; }
+    .ttt-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; }
+    .ttt-cell { aspect-ratio: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: all 0.15s; }
+    .ttt-cell:hover:not(.taken) { background: rgba(167,139,250,0.1); border-color: rgba(167,139,250,0.4); }
+    .ttt-cell.taken { cursor: default; }
+    .ttt-cell.x { color: #a78bfa; }
+    .ttt-cell.o { color: #f472b6; }
+    .ttt-cell.win-cell { background: rgba(167,139,250,0.2); border-color: #a78bfa; }
+    .btn-reset { width: 100%; padding: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #94a3b8; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; }
+    .btn-reset:hover { border-color: #a78bfa; color: #a78bfa; }
+
+    /* QUIZ */
+    .quiz-meta { display: flex; justify-content: space-between; font-size: 0.73rem; color: #475569; flex-shrink: 0; }
+    .quiz-progress { height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+    .quiz-progress-bar { height: 100%; background: linear-gradient(90deg,#7c3aed,#f472b6); border-radius: 2px; transition: width 0.4s; }
+    .quiz-q { font-size: 0.87rem; color: #e2e8f0; line-height: 1.5; text-align: center; min-height: 44px; }
+    .quiz-opts { display: flex; flex-direction: column; gap: 6px; }
+    .quiz-opt { padding: 9px 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #cbd5e1; cursor: pointer; font-size: 0.8rem; text-align: left; transition: all 0.15s; }
+    .quiz-opt:hover:not(:disabled) { border-color: #a78bfa; color: #a78bfa; background: rgba(167,139,250,0.08); }
+    .quiz-opt.correct { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #86efac; }
+    .quiz-opt.wrong { border-color: #ef4444; background: rgba(239,68,68,0.1); color: #fca5a5; }
+    .quiz-opt:disabled { cursor: default; }
+    .quiz-score-board { text-align: center; }
+    .quiz-score-board .big { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg,#a78bfa,#f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .quiz-score-board p { color: #94a3b8; font-size: 0.83rem; margin-top: 6px; }
+
+    @media (max-width: 700px) {
+      .chat-game-row { flex-direction: column; }
+      #gamePanel { width: 100%; min-width: unset; max-height: 300px; }
       .filter-card { padding: 20px; }
       .cta-row { flex-direction: column; }
-      #appScreen { padding: 12px; }
-      .msg { max-width: 85%; }
+      #appScreen { padding: 8px; }
     }
   </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header>
   <div class="logo">StrangerPulse</div>
   <div class="online-badge">
@@ -356,362 +144,438 @@
   </div>
 </header>
 
-<!-- ════════════════ HOME SCREEN ════════════════ -->
+<!-- HOME -->
 <div id="homeScreen">
-  <h1 class="hero-title">Talk to Strangers,<br><span>Instantly.</span></h1>
-  <p class="hero-sub">Free random video and text chat with real people worldwide based on your preferences.</p>
-
+  <h1 class="hero-title">Strangers se baat karo,<br><span>Games bhi khelo!</span></h1>
+  <p class="hero-sub">Free random text & video chat + 3 built-in games — Truth/Dare, Tic Tac Toe, Quiz</p>
   <div class="filter-card">
-    <!-- My Profile -->
     <div class="filter-group">
-      <h3>My Profile</h3>
-      <div class="chip-row" id="profileChips">
+      <h3>Mera Profile</h3>
+      <div class="chip-row">
         <div class="chip active" data-group="profile" data-value="boy" onclick="selectChip(this)">Boy 🕺</div>
         <div class="chip" data-group="profile" data-value="girl" onclick="selectChip(this)">Girl 💃</div>
       </div>
     </div>
-
-    <!-- Match With -->
     <div class="filter-group">
-      <h3>Match With</h3>
-      <div class="chip-row" id="matchChips">
+      <h3>Match Chahiye</h3>
+      <div class="chip-row">
         <div class="chip active" data-group="match" data-value="anyone" onclick="selectChip(this)">Anyone 🌍</div>
         <div class="chip" data-group="match" data-value="girls" onclick="selectChip(this)">Girls Only 💃</div>
         <div class="chip" data-group="match" data-value="boys" onclick="selectChip(this)">Boys Only 🕺</div>
       </div>
     </div>
-
-    <!-- Location -->
     <div class="filter-group">
       <h3>Location</h3>
-      <div class="chip-row" id="locationChips">
+      <div class="chip-row">
         <div class="chip active" data-group="location" data-value="worldwide" onclick="selectChip(this)">Worldwide 🌐</div>
         <div class="chip" data-group="location" data-value="india" onclick="selectChip(this)">India 🇮🇳</div>
-        <div class="chip" data-group="location" data-value="us" onclick="selectChip(this)">United States 🇺🇸</div>
+        <div class="chip" data-group="location" data-value="us" onclick="selectChip(this)">USA 🇺🇸</div>
       </div>
     </div>
-
-    <!-- Language -->
     <div class="filter-group">
       <h3>Language</h3>
-      <div class="chip-row" id="langChips">
-        <div class="chip active" data-group="lang" data-value="any" onclick="selectChip(this)">Any Language 🗣️</div>
+      <div class="chip-row">
+        <div class="chip active" data-group="lang" data-value="any" onclick="selectChip(this)">Any 🗣️</div>
         <div class="chip" data-group="lang" data-value="hindi" onclick="selectChip(this)">Hindi 🇮🇳</div>
         <div class="chip" data-group="lang" data-value="english" onclick="selectChip(this)">English 🇬🇧</div>
       </div>
     </div>
   </div>
-
-  <!-- START BUTTONS — BUG FIX: onclick directly on button element -->
   <div class="cta-row">
     <button class="btn-start btn-text" onclick="startMatching('text')">💬 Text Chat</button>
     <button class="btn-start btn-video" onclick="startMatching('video')">🎥 Video Chat</button>
   </div>
 </div>
 
-<!-- ════════════════ APP SCREEN ════════════════ -->
+<!-- APP SCREEN -->
 <div id="appScreen">
-
-  <!-- Video (shown only in video mode) -->
   <div id="videoWrapper">
-    <div class="video-label" style="flex:1">
-      <video id="remoteVideo" autoplay playsinline></video>
-      <span>Stranger</span>
-    </div>
-    <div class="video-label" style="flex:1">
-      <video id="localVideo" autoplay muted playsinline></video>
-      <span>You</span>
-    </div>
+    <div class="video-label"><video id="remoteVideo" autoplay playsinline></video><span>Stranger</span></div>
+    <div class="video-label"><video id="localVideo" autoplay muted playsinline></video><span>You</span></div>
   </div>
 
-  <!-- Messages -->
-  <div id="messageBox"></div>
+  <div class="chat-game-row">
+    <!-- CHAT -->
+    <div id="chatPanel">
+      <div id="messageBox"></div>
+      <div class="input-row">
+        <button class="btn-home-sm" onclick="goHome()">🏠</button>
+        <input id="messageInput" type="text" placeholder="Message likhein..." onkeydown="handleKey(event)" />
+        <button class="btn-skip" onclick="skipStranger()">⏭ Skip</button>
+        <button class="btn-send" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
 
-  <!-- Input row -->
-  <div class="input-row">
-    <button class="btn-home" onclick="goHome()" title="Back to home">🏠</button>
-    <input id="messageInput" type="text" placeholder="Type a message..." onkeydown="handleKey(event)" />
-    <button class="btn-skip" onclick="skipStranger()">⏭ Skip</button>
-    <button class="btn-send" onclick="sendMessage()">Send</button>
+    <!-- GAMES -->
+    <div id="gamePanel">
+      <div class="game-header">
+        <h4>🎮 Games</h4>
+        <div class="game-tabs">
+          <button class="gtab active" onclick="switchGame('tod')">🌶️ T/D</button>
+          <button class="gtab" onclick="switchGame('ttt')">❌ TTT</button>
+          <button class="gtab" onclick="switchGame('quiz')">❓ Quiz</button>
+        </div>
+      </div>
+
+      <!-- TRUTH OR DARE -->
+      <div class="game-box" id="game-tod">
+        <div class="tod-label" id="todTurn">Wheel ghuma ke apna challenge lo!</div>
+        <div class="tod-wheel-wrap">
+          <div class="tod-wheel" id="todWheel" onclick="spinWheel()">
+            <div class="tod-center">🎡</div>
+          </div>
+        </div>
+        <div class="tod-card empty" id="todCard">Spin karo aur dekho kya aata hai... 🎲</div>
+        <button class="btn-spin" id="todSpinBtn" onclick="spinWheel()">🎡 Spin!</button>
+      </div>
+
+      <!-- TIC TAC TOE -->
+      <div class="game-box" id="game-ttt" style="display:none">
+        <div class="ttt-score">
+          <div class="ttt-score-item"><div class="val" id="scoreX" style="color:#a78bfa">0</div><div class="lbl">You (X)</div></div>
+          <div class="ttt-score-item"><div class="val" id="scoreDraw" style="color:#64748b">0</div><div class="lbl">Draw</div></div>
+          <div class="ttt-score-item"><div class="val" id="scoreO" style="color:#f472b6">0</div><div class="lbl">Stranger (O)</div></div>
+        </div>
+        <div class="ttt-status" id="tttStatus">Match shuru hoga jab stranger milega!</div>
+        <div class="ttt-grid" id="tttGrid"></div>
+        <button class="btn-reset" onclick="resetTTT()">🔄 Naya Game</button>
+      </div>
+
+      <!-- QUIZ -->
+      <div class="game-box" id="game-quiz" style="display:none">
+        <div id="quizMain">
+          <div class="quiz-meta" style="margin-bottom:8px">
+            <span id="quizNum">Sawaal 1/10</span>
+            <span id="quizScoreLabel">Score: 0</span>
+          </div>
+          <div class="quiz-progress" style="margin-bottom:12px"><div class="quiz-progress-bar" id="quizBar" style="width:10%"></div></div>
+          <div class="quiz-q" id="quizQ" style="margin-bottom:10px">Loading...</div>
+          <div class="quiz-opts" id="quizOpts"></div>
+        </div>
+        <div id="quizResult" style="display:none" class="quiz-score-board">
+          <div class="big" id="quizFinalScore">0/10</div>
+          <p id="quizMsg">Kya performance!</p>
+          <button class="btn-reset" style="margin-top:10px" onclick="startQuiz()">🔄 Dobara Khelo</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
-  // ─── CONFIG — BUG FIX: Correct STUN server URL ───
-  const ICE_CONFIG = {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' }
-    ]
-  };
+const ICE_CONFIG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' },{ urls: 'stun:stun1.l.google.com:19302' }] };
+let socket, localStream, peerConnection;
+let chatMode = 'text', partnerId = null, isInitiator = false;
 
-  // ─── STATE ───
-  let socket, localStream, peerConnection;
-  let chatMode = 'text';
-  let partnerId = null;
-  let isInitiator = false;
+function selectChip(el) {
+  const g = el.dataset.group;
+  document.querySelectorAll('.chip[data-group="'+g+'"]').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+function getFilters() {
+  const get = g => document.querySelector('.chip.active[data-group="'+g+'"]')?.dataset.value||'';
+  return { profile:get('profile'), match:get('match'), location:get('location'), lang:get('lang') };
+}
 
-  // ─── FILTER CHIPS ───
-  function selectChip(el) {
-    const group = el.dataset.group;
-    document.querySelectorAll(`.chip[data-group="${group}"]`).forEach(c => c.classList.remove('active'));
-    el.classList.add('active');
-  }
-
-  function getFilters() {
-    const get = g => document.querySelector(`.chip.active[data-group="${g}"]`)?.dataset.value || '';
-    return { profile: get('profile'), match: get('match'), location: get('location'), lang: get('lang') };
-  }
-
-  // ─── SOCKET INIT ───
-  function initSocket() {
-    if (socket && socket.connected) return;
-
-    // Try to connect to the server
-    try {
-      socket = io({ transports: ['websocket', 'polling'] });
-    } catch (e) {
-      appendSystem('⚠️ Server connection failed. Please refresh.');
-      return;
-    }
-
-    socket.on('connect', () => {
-      appendSystem('✅ Connected to server.');
-    });
-
-    socket.on('connect_error', () => {
-      appendSystem('⚠️ Unable to reach server. Check your connection.');
-    });
-
-    socket.on('matched', async ({ partnerId: pid, initiator }) => {
-      partnerId = pid;
-      isInitiator = initiator;
-      appendSystem('🎉 You are now connected with a stranger!');
-
-      if (chatMode === 'video' && localStream) {
-        await createPeerConnection();
-        if (isInitiator) {
-          const offer = await peerConnection.createOffer();
-          await peerConnection.setLocalDescription(offer);
-          socket.emit('signal', { to: partnerId, signal: offer });
-        }
+function initSocket() {
+  if (socket && socket.connected) return;
+  try { socket = io({ transports: ['websocket','polling'] }); } catch(e) { appendSystem('Server error.'); return; }
+  socket.on('connect', () => appendSystem('Connected to server!'));
+  socket.on('connect_error', () => appendSystem('Server se connect nahi hua.'));
+  socket.on('matched', async ({ partnerId: pid, initiator }) => {
+    partnerId = pid; isInitiator = initiator;
+    appendSystem('Stranger mil gaya! Games side mein khelo →');
+    resetTTT(); startQuiz();
+    if (chatMode==='video' && localStream) {
+      await createPeerConnection();
+      if (isInitiator) {
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        socket.emit('signal', { to: partnerId, signal: offer });
       }
-    });
-
-    socket.on('waiting', () => {
-      appendSystem('⏳ Waiting for a match...');
-    });
-
-    socket.on('message', ({ message }) => {
-      appendMessage('stranger', message);
-    });
-
-    socket.on('signal', async ({ signal }) => {
-      if (!peerConnection) await createPeerConnection();
-      try {
-        if (signal.type === 'offer') {
-          await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
-          const answer = await peerConnection.createAnswer();
-          await peerConnection.setLocalDescription(answer);
-          socket.emit('signal', { to: partnerId, signal: answer });
-        } else if (signal.type === 'answer') {
-          await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
-        } else if (signal.candidate) {
-          await peerConnection.addIceCandidate(new RTCIceCandidate(signal));
-        }
-      } catch (err) {
-        console.error('Signal error:', err);
-      }
-    });
-
-    socket.on('partnerDisconnected', () => {
-      appendSystem('👋 Stranger has disconnected. Click Skip to find a new match.');
-      partnerId = null;
-      closePeerConnection();
-    });
-
-    socket.on('disconnect', () => {
-      appendSystem('🔴 Disconnected from server.');
-    });
-  }
-
-  // ─── START MATCHING — MAIN FIX ───
-  async function startMatching(mode) {
-    chatMode = mode;
-
-    // Show app screen, hide home
-    document.getElementById('homeScreen').style.display = 'none';
-    document.getElementById('appScreen').style.display = 'flex';
-
-    // Clear messages
-    const box = document.getElementById('messageBox');
-    box.innerHTML = '';
-    appendSearching();
-
-    // Video mode: request camera
-    if (chatMode === 'video') {
-      document.getElementById('videoWrapper').style.display = 'flex';
-      try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        document.getElementById('localVideo').srcObject = localStream;
-      } catch (err) {
-        alert('Camera/mic access denied. Switching to Text Mode.');
-        document.getElementById('videoWrapper').style.display = 'none';
-        chatMode = 'text';
-        localStream = null;
-      }
-    } else {
-      document.getElementById('videoWrapper').style.display = 'none';
-      if (localStream) {
-        localStream.getTracks().forEach(t => t.stop());
-        localStream = null;
-      }
-    }
-
-    // Init socket and join queue
-    initSocket();
-    if (socket) {
-      socket.emit('findMatch', { mode: chatMode, filters: getFilters() });
-    }
-  }
-
-  // ─── PEER CONNECTION ───
-  async function createPeerConnection() {
-    peerConnection = new RTCPeerConnection(ICE_CONFIG);
-
-    if (localStream) {
-      localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-    }
-
-    peerConnection.ontrack = (event) => {
-      document.getElementById('remoteVideo').srcObject = event.streams[0];
-    };
-
-    peerConnection.onicecandidate = (event) => {
-      if (event.candidate && partnerId) {
-        socket.emit('signal', { to: partnerId, signal: event.candidate });
-      }
-    };
-
-    peerConnection.onconnectionstatechange = () => {
-      if (peerConnection.connectionState === 'failed') {
-        appendSystem('⚠️ Video connection failed. Try skipping.');
-      }
-    };
-  }
-
-  function closePeerConnection() {
-    if (peerConnection) {
-      peerConnection.close();
-      peerConnection = null;
-    }
-    const remoteVid = document.getElementById('remoteVideo');
-    if (remoteVid) remoteVid.srcObject = null;
-  }
-
-  // ─── MESSAGING ───
-  function sendMessage() {
-    const input = document.getElementById('messageInput');
-    const text = input.value.trim();
-    if (!text) return;
-
-    if (!partnerId) {
-      appendSystem('⚠️ Not connected yet. Please wait for a match.');
-      return;
-    }
-
-    socket.emit('message', { to: partnerId, message: text });
-    appendMessage('you', text);
-    input.value = '';
-  }
-
-  function handleKey(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-    if (e.key === 'Escape') skipStranger();
-  }
-
-  // ─── SKIP / GO HOME ───
-  function skipStranger() {
-    closePeerConnection();
-    partnerId = null;
-    if (socket && socket.connected) {
-      socket.emit('skip');
-    }
-    const box = document.getElementById('messageBox');
-    box.innerHTML = '';
-    appendSearching();
-    appendSystem('🔄 Finding a new stranger...');
-    if (socket) socket.emit('findMatch', { mode: chatMode, filters: getFilters() });
-  }
-
-  function goHome() {
-    closePeerConnection();
-    if (localStream) {
-      localStream.getTracks().forEach(t => t.stop());
-      localStream = null;
-    }
-    if (socket && socket.connected) {
-      socket.emit('leave');
-    }
-    partnerId = null;
-    document.getElementById('appScreen').style.display = 'none';
-    document.getElementById('homeScreen').style.display = 'flex';
-  }
-
-  // ─── UI HELPERS ───
-  function appendMessage(from, text) {
-    const box = document.getElementById('messageBox');
-    // Remove searching placeholder if present
-    const srch = box.querySelector('.searching-msg');
-    if (srch) srch.remove();
-
-    const div = document.createElement('div');
-    div.className = `msg ${from === 'you' ? 'msg-you' : 'msg-stranger'}`;
-    div.textContent = text;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-  }
-
-  function appendSystem(text) {
-    const box = document.getElementById('messageBox');
-    const srch = box.querySelector('.searching-msg');
-    if (srch) srch.remove();
-
-    const div = document.createElement('div');
-    div.className = 'msg msg-system';
-    div.textContent = text;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-  }
-
-  function appendSearching() {
-    const box = document.getElementById('messageBox');
-    box.innerHTML = `
-      <div class="searching-msg">
-        <div class="spinner"></div>
-        <div>Searching for a perfect match...</div>
-      </div>`;
-  }
-
-  // ─── FAKE ONLINE COUNT ANIMATION ───
-  (function animateCount() {
-    const el = document.getElementById('onlineCount');
-    let base = 3142;
-    setInterval(() => {
-      base += Math.floor(Math.random() * 7) - 3;
-      el.textContent = base.toLocaleString();
-    }, 4000);
-  })();
-
-  // ─── KEYBOARD SHORTCUT: ESC = SKIP ───
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && document.getElementById('appScreen').style.display !== 'none') {
-      skipStranger();
     }
   });
+  socket.on('waiting', () => appendSystem('Match dhundh rahe hain...'));
+  socket.on('message', ({ message }) => appendMessage('stranger', message));
+  socket.on('gameAction', ({ action, data }) => handleRemoteGame(action, data));
+  socket.on('signal', async ({ signal }) => {
+    if (!peerConnection) await createPeerConnection();
+    try {
+      if (signal.type==='offer') {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
+        const ans = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(ans);
+        socket.emit('signal', { to:partnerId, signal:ans });
+      } else if (signal.type==='answer') {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
+      } else if (signal.candidate) {
+        await peerConnection.addIceCandidate(new RTCIceCandidate(signal));
+      }
+    } catch(e) { console.error(e); }
+  });
+  socket.on('partnerDisconnected', () => { appendSystem('Stranger disconnect ho gaya.'); partnerId=null; closePeerConnection(); });
+  socket.on('disconnect', () => appendSystem('Disconnected.'));
+}
+function emitGame(action, data) { if (socket && partnerId) socket.emit('gameAction', { to:partnerId, action, data }); }
+
+async function startMatching(mode) {
+  chatMode = mode;
+  document.getElementById('homeScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'flex';
+  document.getElementById('messageBox').innerHTML = '';
+  appendSearching();
+  if (chatMode==='video') {
+    document.getElementById('videoWrapper').style.display = 'flex';
+    try {
+      localStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
+      document.getElementById('localVideo').srcObject = localStream;
+    } catch(e) {
+      alert('Camera/mic permission nahi mila. Text mode pe switch kar raha hoon.');
+      document.getElementById('videoWrapper').style.display = 'none';
+      chatMode = 'text'; localStream = null;
+    }
+  } else {
+    document.getElementById('videoWrapper').style.display = 'none';
+    if (localStream) { localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
+  }
+  initSocket();
+  if (socket) socket.emit('findMatch', { mode:chatMode, filters:getFilters() });
+  resetTTT(); startQuiz();
+}
+async function createPeerConnection() {
+  peerConnection = new RTCPeerConnection(ICE_CONFIG);
+  if (localStream) localStream.getTracks().forEach(t=>peerConnection.addTrack(t,localStream));
+  peerConnection.ontrack = e => { document.getElementById('remoteVideo').srcObject=e.streams[0]; };
+  peerConnection.onicecandidate = e => { if (e.candidate && partnerId) socket.emit('signal',{to:partnerId,signal:e.candidate}); };
+}
+function closePeerConnection() {
+  if (peerConnection) { peerConnection.close(); peerConnection=null; }
+  const rv = document.getElementById('remoteVideo');
+  if (rv) rv.srcObject = null;
+}
+function sendMessage() {
+  const inp = document.getElementById('messageInput');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  if (!partnerId) { appendSystem('Connected nahi hain abhi. Wait karo.'); return; }
+  socket.emit('message', { to:partnerId, message:txt });
+  appendMessage('you', txt);
+  inp.value = '';
+}
+function handleKey(e) { if (e.key==='Enter') { e.preventDefault(); sendMessage(); } }
+function skipStranger() {
+  closePeerConnection(); partnerId=null;
+  if (socket && socket.connected) socket.emit('skip');
+  document.getElementById('messageBox').innerHTML = '';
+  appendSearching();
+  if (socket) socket.emit('findMatch', { mode:chatMode, filters:getFilters() });
+  resetTTT(); startQuiz();
+}
+function goHome() {
+  closePeerConnection();
+  if (localStream) { localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
+  if (socket && socket.connected) socket.emit('leave');
+  partnerId=null;
+  document.getElementById('appScreen').style.display='none';
+  document.getElementById('homeScreen').style.display='flex';
+}
+function appendMessage(from, txt) {
+  const box = document.getElementById('messageBox');
+  box.querySelector('.searching-msg')?.remove();
+  const d = document.createElement('div');
+  d.className='msg '+(from==='you'?'msg-you':'msg-stranger');
+  d.textContent=txt; box.appendChild(d); box.scrollTop=box.scrollHeight;
+}
+function appendSystem(txt) {
+  const box = document.getElementById('messageBox');
+  box.querySelector('.searching-msg')?.remove();
+  const d = document.createElement('div');
+  d.className='msg msg-system'; d.textContent=txt; box.appendChild(d); box.scrollTop=box.scrollHeight;
+}
+function appendGameMsg(txt) {
+  const box = document.getElementById('messageBox');
+  const d = document.createElement('div');
+  d.className='msg msg-game'; d.textContent=txt; box.appendChild(d); box.scrollTop=box.scrollHeight;
+}
+function appendSearching() {
+  document.getElementById('messageBox').innerHTML='<div class="searching-msg"><div class="spinner"></div><div>Match dhundh rahe hain...</div></div>';
+}
+(function(){ const el=document.getElementById('onlineCount'); let b=3142;
+  setInterval(()=>{ b+=Math.floor(Math.random()*7)-3; el.textContent=b.toLocaleString(); },4000); })();
+
+/* GAME SWITCH */
+function switchGame(g) {
+  ['tod','ttt','quiz'].forEach(id => document.getElementById('game-'+id).style.display=id===g?'flex':'none');
+  document.querySelectorAll('.gtab').forEach((t,i) => t.classList.toggle('active',['tod','ttt','quiz'][i]===g));
+}
+
+/* ───── TRUTH OR DARE ───── */
+const TRUTHS = [
+  'Tumhara sabse embarrassing moment kya tha? 😳',
+  'Pehli crush ka naam batao! 💕',
+  'Aaj tak ka sabse bada jhooth kaunsa bola? 🤥',
+  'Kya tumne kabhi kisi ki diary ya phone padha? 📖',
+  'Tumhari sabse buri aadat kya hai? 😅',
+  'Kaunsa secret hai jo kisi ko nahi bataya? 🤫',
+  'Pehli date pe kya hua tha? ❤️',
+  'Tumhara sabse bada darr kya hai? 😨',
+  'Kab roya the aakhri baar aur kyun? 😢',
+  'Ek din invisible ho jao toh kya karoge? 🫥',
+  'Abhi tak ka sabse bada regret kya hai? 💭',
+  'Kisi pe crush hai abhi? Hint do! 😍'
+];
+const DARES = [
+  'Apni voice mein "Bahut maza aa raha hai!" 3 baar bolkar message karo! 🎤',
+  'Abhi 10 jumping jacks karo! 🏋️',
+  'Apni fav song ki pehli line type karo! 🎵',
+  'Khud ka ek roast likho! 😂',
+  'Apna best dance move describe karo step by step! 💃',
+  'Is stranger mein ek achhi baat batao! 🌟',
+  'Apni maa/baba ko "I love you" message karo abhi! ❤️',
+  'Ek minute phone maat chhuao! 📵',
+  'Apna fav meme describe karo bina image ke! 🖼️',
+  'Mirror ke saamne jaake 5 second smile karo! 😊',
+  'Apna talent dikhao — kuch bhi! 🎭',
+  'Ek weird fact apne baare mein batao! 🤪'
+];
+let todTurn = 'you';
+function spinWheel() {
+  const btn = document.getElementById('todSpinBtn');
+  const wheel = document.getElementById('todWheel');
+  if (btn.disabled) return;
+  btn.disabled = true;
+  wheel.classList.add('spinning');
+  setTimeout(() => {
+    wheel.classList.remove('spinning');
+    const isTruth = Math.random()<0.5;
+    const list = isTruth ? TRUTHS : DARES;
+    const item = list[Math.floor(Math.random()*list.length)];
+    const type = isTruth?'truth':'dare';
+    const label = isTruth?'TRUTH':'DARE';
+    const card = document.getElementById('todCard');
+    card.className='tod-card '+type;
+    card.innerHTML='<strong>'+(isTruth?'🧠':'🔥')+' '+label+':</strong> '+item;
+    document.getElementById('todTurn').textContent=(todTurn==='you'?'Tumhara':'Stranger ka')+' challenge!';
+    appendGameMsg((isTruth?'🧠 TRUTH':'🔥 DARE')+': '+item);
+    emitGame('tod', { type, item, turn:todTurn });
+    todTurn = todTurn==='you'?'stranger':'you';
+    btn.disabled = false;
+  }, 900);
+}
+
+/* ───── TIC TAC TOE ───── */
+let tttBoard, tttMyTurn, sc={X:0,O:0,D:0};
+const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+function resetTTT() {
+  tttBoard=Array(9).fill(''); tttMyTurn=true; renderTTT();
+  document.getElementById('tttStatus').textContent='Tumhari baari (X)';
+}
+function renderTTT() {
+  const g=document.getElementById('tttGrid'); g.innerHTML='';
+  tttBoard.forEach((v,i)=>{
+    const c=document.createElement('div');
+    c.className='ttt-cell'+(v?' taken '+v.toLowerCase():'');
+    c.textContent=v; c.onclick=()=>tttMove(i); g.appendChild(c);
+  });
+}
+function tttMove(i) {
+  if (!tttMyTurn||tttBoard[i]) return;
+  tttBoard[i]='X'; tttMyTurn=false; emitGame('ttt',{i}); renderTTT(); checkTTT();
+}
+function checkTTT() {
+  for (const [a,b,c] of WINS) {
+    if (tttBoard[a]&&tttBoard[a]===tttBoard[b]&&tttBoard[b]===tttBoard[c]) {
+      document.querySelectorAll('.ttt-cell')[a]?.classList.add('win-cell');
+      document.querySelectorAll('.ttt-cell')[b]?.classList.add('win-cell');
+      document.querySelectorAll('.ttt-cell')[c]?.classList.add('win-cell');
+      const w=tttBoard[a]; const msg=w==='X'?'Tumne jeet liya! 🏆':'Stranger jeet gaya! 😢';
+      document.getElementById('tttStatus').textContent=msg;
+      appendGameMsg('TTT: '+msg);
+      if(w==='X')sc.X++;else sc.O++;
+      updateSc(); setTimeout(resetTTT,1800); return;
+    }
+  }
+  if (!tttBoard.includes('')) {
+    document.getElementById('tttStatus').textContent='Draw! 🤝';
+    appendGameMsg('TTT: Draw ho gaya!');
+    sc.D++; updateSc(); setTimeout(resetTTT,1500); return;
+  }
+  document.getElementById('tttStatus').textContent=tttMyTurn?'Tumhari baari (X)':'Stranger ki baari (O)...';
+}
+function updateSc() {
+  document.getElementById('scoreX').textContent=sc.X;
+  document.getElementById('scoreO').textContent=sc.O;
+  document.getElementById('scoreDraw').textContent=sc.D;
+}
+
+/* ───── QUIZ ───── */
+const QS = [
+  {q:'Subah uthke sabse pehle kya karte ho?',opts:['Phone dekhte ho','Chai/coffee peete ho','Exercise karte ho','Seedha kaam pe'],ans:0},
+  {q:'Tumhara ideal weekend kaisa hota hai?',opts:['Ghar pe rest','Doston ke saath','Naya place explore','Kuch creative banana'],ans:1},
+  {q:'Agar ek superpower mile toh?',opts:['Ud sako','Time rok sako','Mann padh sako','Invisible ho jao'],ans:2},
+  {q:'Khane mein kya prefer karte ho?',opts:['Teekha spicy','Meetha sweet','Namkeen salty','Plain simple'],ans:0},
+  {q:'Ghumne ka plan banaao toh kahaan?',opts:['Pahad mountains','Samundar beach','Sheher city','Jungle forest'],ans:1},
+  {q:'Raat neend se pehle kya karte ho?',opts:['Social media scroll','Book padhte ho','Music sunte ho','Seedha so jaate ho'],ans:2},
+  {q:'Kaunsi movie genre pasand hai?',opts:['Comedy','Thriller/Horror','Romance','Action/Adventure'],ans:3},
+  {q:'Dosto mein tumhara role kya hota hai?',opts:['Group leader','Funny wala dost','Sab ka sunne wala','Planner'],ans:0},
+  {q:'Kaunsi cheez sabse zyada khush karti hai?',opts:['Achha khaana','Naya adventure','Doston se milna','Kuch achieve karna'],ans:3},
+  {q:'Ek din billionaire ho jao toh?',opts:['Travel the world','Ghar kharido','Charity karo','Business shuru karo'],ans:0}
+];
+let qi=0, qs=0, qa=false;
+function startQuiz() {
+  qi=0; qs=0; qa=false;
+  document.getElementById('quizResult').style.display='none';
+  document.getElementById('quizMain').style.display='block';
+  renderQ();
+}
+function renderQ() {
+  if (qi>=QS.length) { showQResult(); return; }
+  const q=QS[qi];
+  document.getElementById('quizNum').textContent='Sawaal '+(qi+1)+'/'+QS.length;
+  document.getElementById('quizScoreLabel').textContent='Score: '+qs;
+  document.getElementById('quizBar').style.width=(((qi+1)/QS.length)*100)+'%';
+  document.getElementById('quizQ').textContent=q.q;
+  const opts=document.getElementById('quizOpts'); opts.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='quiz-opt'; btn.textContent=opt;
+    btn.onclick=()=>ansQ(i,btn); opts.appendChild(btn);
+  });
+  qa=false;
+}
+function ansQ(i,btn) {
+  if (qa) return; qa=true;
+  const correct=QS[qi].ans;
+  document.querySelectorAll('.quiz-opt').forEach(b=>{ b.disabled=true; });
+  if (i===correct) { btn.classList.add('correct'); qs++; appendGameMsg('Quiz Q'+(qi+1)+': Sahi jawab! +1'); }
+  else { btn.classList.add('wrong'); document.querySelectorAll('.quiz-opt')[correct]?.classList.add('correct'); appendGameMsg('Quiz Q'+(qi+1)+': Galat! Sahi: "'+QS[qi].opts[correct]+'"'); }
+  emitGame('quiz',{qi,ai:i});
+  setTimeout(()=>{ qi++; renderQ(); },1300);
+}
+function showQResult() {
+  document.getElementById('quizMain').style.display='none';
+  document.getElementById('quizResult').style.display='block';
+  document.getElementById('quizFinalScore').textContent=qs+'/'+QS.length;
+  const msgs=['Practice karo aur dobara aao! 😅','Theek tha! 👍','Achha kiya! 🎉','Genius ho tum! 🏆'];
+  document.getElementById('quizMsg').textContent=msgs[qs<=2?0:qs<=5?1:qs<=8?2:3];
+  appendGameMsg('Quiz khatam! Final score: '+qs+'/'+QS.length+' 🎯');
+}
+
+/* REMOTE GAME HANDLER */
+function handleRemoteGame(action, data) {
+  if (action==='ttt') {
+    if (!tttBoard[data.i]) { tttBoard[data.i]='O'; tttMyTurn=true; renderTTT(); checkTTT(); }
+  } else if (action==='tod') {
+    const lbl=data.type==='truth'?'🧠 TRUTH':'🔥 DARE';
+    const card=document.getElementById('todCard');
+    card.className='tod-card '+data.type;
+    card.innerHTML='<strong>'+lbl+' (Stranger ka):</strong> '+data.item;
+    document.getElementById('todTurn').textContent='Stranger ne spin kiya!';
+    appendGameMsg(lbl+' (Stranger): '+data.item);
+  } else if (action==='quiz') {
+    appendGameMsg('Stranger ne Q'+(data.qi+1)+' answer kiya');
+  }
+}
 </script>
 </body>
 </html>
