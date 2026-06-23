@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StrangerPulse - Meet with Love</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f1a;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 32px;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .online-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #86efac;
+      background: rgba(134,239,172,0.1);
+      border: 1px solid rgba(134,239,172,0.25);
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+    .online-dot {
+      width: 8px; height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    /* ── HOME SCREEN ── */
+    #homeScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 20px 60px;
+    }
+    .hero-title {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .hero-title span {
+      background: linear-gradient(135deg, #a78bfa, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      color: #94a3b8;
+      text-align: center;
+      max-width: 480px;
+      margin-bottom: 40px;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    /* ── FILTER CARD ── */
+    .filter-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 520px;
+      margin-bottom: 28px;
+      backdrop-filter: blur(10px);
+    }
+    .filter-card h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #64748b;
+      margin-bottom: 16px;
+    }
+    .filter-group {
+      margin-bottom: 24px;
+    }
+    .filter-group:last-child { margin-bottom: 0; }
+    .chip-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      padding: 8px 18px;
+      border-radius: 50px;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      background: transparent;
+      color: #cbd5e1;
+      cursor: pointer;
+      font-size: 0.88rem;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .chip:hover {
+      border-color: #a78bfa;
+      color: #a78bfa;
+    }
+    .chip.active {
+      background: linear-gradient(135deg, #7c3aed, #db2777);
+      border-color: transparent;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* ── CTA BUTTONS ── */
+    .cta-row {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+      max-width: 520px;
+    }
+    .btn-start {
+      flex: 1;
+      padding: 16px;
+      border-radius: 14px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .btn-start::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: -1;
+    }
+    .btn-text {
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      color: #fff;
+    }
+    .btn-text::before { background: rgba(255,255,255,0.1); }
+    .btn-video {
+      background: linear-gradient(135deg, #be185d, #f472b6);
+      color: #fff;
+    }
+    .btn-video::before { background: rgba(255,255,255,0.1); }
+    .btn-start:hover::before { opacity: 1; }
+    .btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+    .btn-start:active { transform: translateY(0); }
+
+    /* ── APP SCREEN ── */
+    #appScreen {
+      display: none;
+      flex-direction: column;
+      height: calc(100vh - 65px);
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      gap: 16px;
+    }
+
+    /* Video area */
+    #videoWrapper {
+      display: none;
+      gap: 12px;
+      height: 260px;
+    }
+    #videoWrapper video {
+      flex: 1;
+      background: #1e1e2e;
+      border-radius: 14px;
+      object-fit: cover;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .video-label {
+      position: relative;
+    }
+    .video-label span {
+      position: absolute;
+      bottom: 8px; left: 8px;
+      background: rgba(0,0,0,0.6);
+      padding: 3px 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+    }
+
+    /* Chat box */
+    #messageBox {
+      flex: 1;
+      overflow-y: auto;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #messageBox::-webkit-scrollbar { width: 4px; }
+    #messageBox::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+    .msg {
+      max-width: 70%;
+      padding: 10px 16px;
+      border-radius: 16px;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    .msg-stranger {
+      background: rgba(255,255,255,0.08);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .msg-you {
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .msg-system {
+      align-self: center;
+      color: #64748b;
+      font-size: 0.8rem;
+      font-style: italic;
+      background: transparent;
+      padding: 4px 0;
+    }
+    .searching-msg {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 16px;
+      color: #64748b;
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(167,139,250,0.2);
+      border-top-color: #a78bfa;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Input row */
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    #messageInput {
+      flex: 1;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      color: #fff;
+      padding: 14px 18px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #messageInput:focus { border-color: #a78bfa; }
+    #messageInput::placeholder { color: #475569; }
+
+    .btn-send {
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+    .btn-send:hover { opacity: 0.9; transform: scale(1.03); }
+
+    .btn-skip {
+      padding: 14px 20px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      color: #94a3b8;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.88rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-skip:hover { border-color: #f472b6; color: #f472b6; }
+
+    .btn-home {
+      padding: 14px 20px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      color: #64748b;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.88rem;
+      transition: all 0.2s;
+    }
+    .btn-home:hover { border-color: #ef4444; color: #ef4444; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .filter-card { padding: 20px; }
+      .cta-row { flex-direction: column; }
+      #appScreen { padding: 12px; }
+      .msg { max-width: 85%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">StrangerPulse</div>
+  <div class="online-badge">
+    <div class="online-dot"></div>
+    <span id="onlineCount">3,142</span> Online
+  </div>
+</header>
+
+<!-- ════════════════ HOME SCREEN ════════════════ -->
+<div id="homeScreen">
+  <h1 class="hero-title">Talk to Strangers,<br><span>Instantly.</span></h1>
+  <p class="hero-sub">Free random video and text chat with real people worldwide based on your preferences.</p>
+
+  <div class="filter-card">
+    <!-- My Profile -->
+    <div class="filter-group">
+      <h3>My Profile</h3>
+      <div class="chip-row" id="profileChips">
+        <div class="chip active" data-group="profile" data-value="boy" onclick="selectChip(this)">Boy 🕺</div>
+        <div class="chip" data-group="profile" data-value="girl" onclick="selectChip(this)">Girl 💃</div>
+      </div>
+    </div>
+
+    <!-- Match With -->
+    <div class="filter-group">
+      <h3>Match With</h3>
+      <div class="chip-row" id="matchChips">
+        <div class="chip active" data-group="match" data-value="anyone" onclick="selectChip(this)">Anyone 🌍</div>
+        <div class="chip" data-group="match" data-value="girls" onclick="selectChip(this)">Girls Only 💃</div>
+        <div class="chip" data-group="match" data-value="boys" onclick="selectChip(this)">Boys Only 🕺</div>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="filter-group">
+      <h3>Location</h3>
+      <div class="chip-row" id="locationChips">
+        <div class="chip active" data-group="location" data-value="worldwide" onclick="selectChip(this)">Worldwide 🌐</div>
+        <div class="chip" data-group="location" data-value="india" onclick="selectChip(this)">India 🇮🇳</div>
+        <div class="chip" data-group="location" data-value="us" onclick="selectChip(this)">United States 🇺🇸</div>
+      </div>
+    </div>
+
+    <!-- Language -->
+    <div class="filter-group">
+      <h3>Language</h3>
+      <div class="chip-row" id="langChips">
+        <div class="chip active" data-group="lang" data-value="any" onclick="selectChip(this)">Any Language 🗣️</div>
+        <div class="chip" data-group="lang" data-value="hindi" onclick="selectChip(this)">Hindi 🇮🇳</div>
+        <div class="chip" data-group="lang" data-value="english" onclick="selectChip(this)">English 🇬🇧</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- START BUTTONS — BUG FIX: onclick directly on button element -->
+  <div class="cta-row">
+    <button class="btn-start btn-text" onclick="startMatching('text')">💬 Text Chat</button>
+    <button class="btn-start btn-video" onclick="startMatching('video')">🎥 Video Chat</button>
+  </div>
+</div>
+
+<!-- ════════════════ APP SCREEN ════════════════ -->
+<div id="appScreen">
+
+  <!-- Video (shown only in video mode) -->
+  <div id="videoWrapper">
+    <div class="video-label" style="flex:1">
+      <video id="remoteVideo" autoplay playsinline></video>
+      <span>Stranger</span>
+    </div>
+    <div class="video-label" style="flex:1">
+      <video id="localVideo" autoplay muted playsinline></video>
+      <span>You</span>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div id="messageBox"></div>
+
+  <!-- Input row -->
+  <div class="input-row">
+    <button class="btn-home" onclick="goHome()" title="Back to home">🏠</button>
+    <input id="messageInput" type="text" placeholder="Type a message..." onkeydown="handleKey(event)" />
+    <button class="btn-skip" onclick="skipStranger()">⏭ Skip</button>
+    <button class="btn-send" onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+  // ─── CONFIG — BUG FIX: Correct STUN server URL ───
+  const ICE_CONFIG = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' }
+    ]
+  };
+
+  // ─── STATE ───
+  let socket, localStream, peerConnection;
+  let chatMode = 'text';
+  let partnerId = null;
+  let isInitiator = false;
+
+  // ─── FILTER CHIPS ───
+  function selectChip(el) {
+    const group = el.dataset.group;
+    document.querySelectorAll(`.chip[data-group="${group}"]`).forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function getFilters() {
+    const get = g => document.querySelector(`.chip.active[data-group="${g}"]`)?.dataset.value || '';
+    return { profile: get('profile'), match: get('match'), location: get('location'), lang: get('lang') };
+  }
+
+  // ─── SOCKET INIT ───
+  function initSocket() {
+    if (socket && socket.connected) return;
+
+    // Try to connect to the server
+    try {
+      socket = io({ transports: ['websocket', 'polling'] });
+    } catch (e) {
+      appendSystem('⚠️ Server connection failed. Please refresh.');
+      return;
+    }
+
+    socket.on('connect', () => {
+      appendSystem('✅ Connected to server.');
+    });
+
+    socket.on('connect_error', () => {
+      appendSystem('⚠️ Unable to reach server. Check your connection.');
+    });
+
+    socket.on('matched', async ({ partnerId: pid, initiator }) => {
+      partnerId = pid;
+      isInitiator = initiator;
+      appendSystem('🎉 You are now connected with a stranger!');
+
+      if (chatMode === 'video' && localStream) {
+        await createPeerConnection();
+        if (isInitiator) {
+          const offer = await peerConnection.createOffer();
+          await peerConnection.setLocalDescription(offer);
+          socket.emit('signal', { to: partnerId, signal: offer });
+        }
+      }
+    });
+
+    socket.on('waiting', () => {
+      appendSystem('⏳ Waiting for a match...');
+    });
+
+    socket.on('message', ({ message }) => {
+      appendMessage('stranger', message);
+    });
+
+    socket.on('signal', async ({ signal }) => {
+      if (!peerConnection) await createPeerConnection();
+      try {
+        if (signal.type === 'offer') {
+          await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
+          const answer = await peerConnection.createAnswer();
+          await peerConnection.setLocalDescription(answer);
+          socket.emit('signal', { to: partnerId, signal: answer });
+        } else if (signal.type === 'answer') {
+          await peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
+        } else if (signal.candidate) {
+          await peerConnection.addIceCandidate(new RTCIceCandidate(signal));
+        }
+      } catch (err) {
+        console.error('Signal error:', err);
+      }
+    });
+
+    socket.on('partnerDisconnected', () => {
+      appendSystem('👋 Stranger has disconnected. Click Skip to find a new match.');
+      partnerId = null;
+      closePeerConnection();
+    });
+
+    socket.on('disconnect', () => {
+      appendSystem('🔴 Disconnected from server.');
+    });
+  }
+
+  // ─── START MATCHING — MAIN FIX ───
+  async function startMatching(mode) {
+    chatMode = mode;
+
+    // Show app screen, hide home
+    document.getElementById('homeScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'flex';
+
+    // Clear messages
+    const box = document.getElementById('messageBox');
+    box.innerHTML = '';
+    appendSearching();
+
+    // Video mode: request camera
+    if (chatMode === 'video') {
+      document.getElementById('videoWrapper').style.display = 'flex';
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById('localVideo').srcObject = localStream;
+      } catch (err) {
+        alert('Camera/mic access denied. Switching to Text Mode.');
+        document.getElementById('videoWrapper').style.display = 'none';
+        chatMode = 'text';
+        localStream = null;
+      }
+    } else {
+      document.getElementById('videoWrapper').style.display = 'none';
+      if (localStream) {
+        localStream.getTracks().forEach(t => t.stop());
+        localStream = null;
+      }
+    }
+
+    // Init socket and join queue
+    initSocket();
+    if (socket) {
+      socket.emit('findMatch', { mode: chatMode, filters: getFilters() });
+    }
+  }
+
+  // ─── PEER CONNECTION ───
+  async function createPeerConnection() {
+    peerConnection = new RTCPeerConnection(ICE_CONFIG);
+
+    if (localStream) {
+      localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+    }
+
+    peerConnection.ontrack = (event) => {
+      document.getElementById('remoteVideo').srcObject = event.streams[0];
+    };
+
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate && partnerId) {
+        socket.emit('signal', { to: partnerId, signal: event.candidate });
+      }
+    };
+
+    peerConnection.onconnectionstatechange = () => {
+      if (peerConnection.connectionState === 'failed') {
+        appendSystem('⚠️ Video connection failed. Try skipping.');
+      }
+    };
+  }
+
+  function closePeerConnection() {
+    if (peerConnection) {
+      peerConnection.close();
+      peerConnection = null;
+    }
+    const remoteVid = document.getElementById('remoteVideo');
+    if (remoteVid) remoteVid.srcObject = null;
+  }
+
+  // ─── MESSAGING ───
+  function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    if (!partnerId) {
+      appendSystem('⚠️ Not connected yet. Please wait for a match.');
+      return;
+    }
+
+    socket.emit('message', { to: partnerId, message: text });
+    appendMessage('you', text);
+    input.value = '';
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+    if (e.key === 'Escape') skipStranger();
+  }
+
+  // ─── SKIP / GO HOME ───
+  function skipStranger() {
+    closePeerConnection();
+    partnerId = null;
+    if (socket && socket.connected) {
+      socket.emit('skip');
+    }
+    const box = document.getElementById('messageBox');
+    box.innerHTML = '';
+    appendSearching();
+    appendSystem('🔄 Finding a new stranger...');
+    if (socket) socket.emit('findMatch', { mode: chatMode, filters: getFilters() });
+  }
+
+  function goHome() {
+    closePeerConnection();
+    if (localStream) {
+      localStream.getTracks().forEach(t => t.stop());
+      localStream = null;
+    }
+    if (socket && socket.connected) {
+      socket.emit('leave');
+    }
+    partnerId = null;
+    document.getElementById('appScreen').style.display = 'none';
+    document.getElementById('homeScreen').style.display = 'flex';
+  }
+
+  // ─── UI HELPERS ───
+  function appendMessage(from, text) {
+    const box = document.getElementById('messageBox');
+    // Remove searching placeholder if present
+    const srch = box.querySelector('.searching-msg');
+    if (srch) srch.remove();
+
+    const div = document.createElement('div');
+    div.className = `msg ${from === 'you' ? 'msg-you' : 'msg-stranger'}`;
+    div.textContent = text;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function appendSystem(text) {
+    const box = document.getElementById('messageBox');
+    const srch = box.querySelector('.searching-msg');
+    if (srch) srch.remove();
+
+    const div = document.createElement('div');
+    div.className = 'msg msg-system';
+    div.textContent = text;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function appendSearching() {
+    const box = document.getElementById('messageBox');
+    box.innerHTML = `
+      <div class="searching-msg">
+        <div class="spinner"></div>
+        <div>Searching for a perfect match...</div>
+      </div>`;
+  }
+
+  // ─── FAKE ONLINE COUNT ANIMATION ───
+  (function animateCount() {
+    const el = document.getElementById('onlineCount');
+    let base = 3142;
+    setInterval(() => {
+      base += Math.floor(Math.random() * 7) - 3;
+      el.textContent = base.toLocaleString();
+    }, 4000);
+  })();
+
+  // ─── KEYBOARD SHORTCUT: ESC = SKIP ───
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('appScreen').style.display !== 'none') {
+      skipStranger();
+    }
+  });
+</script>
+</body>
+</html>
